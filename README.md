@@ -1,7 +1,5 @@
 # Pocket Grimoire
 
-[PocketGrimoire.co.uk](https://www.pocketgrimoire.co.uk)
-
 A digital version of the [Blood on the Clocktower](https://bloodontheclocktower.com) grimoire, allowing in-person games.
 
 This repository is an independent fork of Skateside’s Pocket Grimoire. The workflow and architecture of the redesigned Storyteller workspace are documented in [the redesign notes](docs/REDESIGN.md).
