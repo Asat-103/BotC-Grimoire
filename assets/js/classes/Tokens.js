@@ -229,6 +229,12 @@ export default class Tokens {
             return;
         }
 
+        const layout = token.closest(".js--pad")?.dataset.layout;
+        if (layout && layout !== "freeform"
+            && (token.dataset.token === "character" || token.classList.contains("is-assigned-reminder"))) {
+            return;
+        }
+        this.draggedToken = token;
         this.startDrag(token, e);
 
         const zIndex = this.advanceZIndex();
@@ -457,6 +463,10 @@ export default class Tokens {
                 passive: false
             });
             this.dragHandler = noop;
+            if (this.isDragging && this.draggedToken) {
+                this.observer.trigger("token-drop", { token: this.draggedToken });
+            }
+            this.draggedToken = null;
 
             // The order of events is mousedown -> mouseup -> click. This means
             // that we need to delay the resetting of `this.isDragging` so that

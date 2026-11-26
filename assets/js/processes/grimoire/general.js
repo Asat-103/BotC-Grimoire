@@ -70,6 +70,9 @@ gameObserver.on("characters-selected", ({ detail }) => {
 
 gameObserver.on("character-drawn", ({ detail }) => {
     pad.addNewCharacter(detail.character);
+    if (detail.name) {
+        pad.setPlayerName(detail.character, detail.name);
+    }
 });
 
 lookupOne("#show-night-order").addEventListener("change", ({ target }) => {

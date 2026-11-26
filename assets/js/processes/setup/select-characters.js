@@ -21,6 +21,9 @@ import {
     supplant
 } from "../../utils/strings.js";
 
+import { showView } from "../../workspace/navigation.js";
+import Store from "../../classes/Store.js";
+
 const gameObserver = Observer.create("game");
 const tokenObserver = Observer.create("token");
 
@@ -361,11 +364,27 @@ lookupOne("#player-select").addEventListener("submit", (e) => {
             })
             .flat();
 
+        const mode = {
+            "player-select-all": "deal",
+            "player-select-sequential": "sequential",
+            "player-select-manual": "manual"
+        }[e.submitter?.id] || "bag";
+
+        if (!filtered.length) {
+            validationInput.setCustomValidity(I18N.noCharacters);
+            validationInput.form.reportValidity();
+            return;
+        }
+        const seats = Store.create("pocket-grimoire").data.seats || [];
+        if (seats.length && seats.length !== filtered.length && !confirm(WORKSPACE.countMismatch)) {
+            return;
+        }
+
         const bagDisabled = filtered.filter((character) => {
             return character.hasSpecialData("selection", "bag-disabled");
         });
 
-        if (bagDisabled.length) {
+        if (mode === "bag" && bagDisabled.length) {
 
             validationInput.setCustomValidity(supplant(
                 window.I18N.bagDisabled,
@@ -377,10 +396,15 @@ lookupOne("#player-select").addEventListener("submit", (e) => {
 
             validationInput.setCustomValidity("");
 
-            const isShowAll = Boolean(e.submitter?.id === "player-select-all");
+            const isShowAll = mode === "deal";
+            Dialog.create(lookupOneCached("#character-select")).hide();
+            showView("grimoire");
+            const pad = lookupOneCached(".js--pad").pad;
+            pad.updatePositioner({ container: true, tokens: true, total: filtered.length });
 
             gameObserver.trigger("character-draw", {
                 isShowAll,
+                mode,
                 characters: (
                     isShowAll
                     ? shuffle(filtered)
@@ -388,7 +412,6 @@ lookupOne("#player-select").addEventListener("submit", (e) => {
                 )
             });
 
-            Dialog.create(lookupOneCached("#character-select")).hide();
 
         }
 

@@ -1,3 +1,4 @@
+import { presentCharacters } from "../../workspace/presentation.js";
 import Dialog from "../../classes/Dialog.js";
 import SelectDialog from "../../classes/SelectDialog.js";
 import Observer from "../../classes/Observer.js";
@@ -37,7 +38,35 @@ tokenObserver.on("character-click", ({ detail }) => {
     lookupOneCached("#character-show-name").textContent = character.getName();
     lookupOneCached("#character-show-ability").textContent = character.getAbility();
     recentReminders.dataset.coords = JSON.stringify(pad.getTokenPosition(element));
+    recentReminders.dataset.owner = element.id;
+    const reminders = lookupOneCached("#assigned-reminders");
+    reminders.replaceChildren();
+    if (character.playerDetails?.seatId) {
+        pad.reminders.filter(({ reminder }) => reminder.owner === character.playerDetails.seatId).forEach(({ reminder, token }) => {
+            const item = document.createElement("li");
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "button";
+            button.textContent = reminder.getText();
+            button.addEventListener("click", () => {
+                characterShowDialog.hide();
+                tokenObserver.trigger("reminder-click", { element: token });
+            });
+            item.append(button);
+            reminders.append(item);
+        });
+    }
 
+    const details = character.playerDetails || {};
+    document.querySelector("#actual-alignment").value = details.alignment || "";
+    document.querySelector("#seat-note").value = details.note || "";
+    const history = document.querySelector("#player-history");
+    history.replaceChildren();
+    (details.history || []).forEach((entry) => {
+        const row = document.createElement("li");
+        row.textContent = entry;
+        history.append(row);
+    });
     characterShowDialog.show();
 
 });
@@ -69,6 +98,20 @@ function getToken(target) {
     return lookupOne(target.closest("[data-token]").dataset.token);
 }
 
+document.querySelector("#seat-details").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const character = pad.getCharacterByToken(getToken(event.target));
+    const fields = new FormData(event.target);
+    const alignment = fields.get("alignment");
+    const previous = character.playerDetails || {};
+    const history = [...(previous.history || [])];
+    if (alignment !== (previous.alignment || "")) {
+        history.push(event.target.elements.alignment.selectedOptions[0].textContent);
+    }
+    pad.setPlayerDetails(character, { ...previous, alignment, note: fields.get("note"), history });
+    hideDialog(event.target);
+});
+
 function hideDialog(target) {
     Dialog.create(target.closest(".dialog")).hide();
 }
@@ -78,12 +121,9 @@ TokenStore.ready(() => {
     // Show a token as it's clicked from the "show tokens" dialog.
     lookupOne("#character-show-token").addEventListener("click", ({ target }) => {
 
-        tokenDialog.setIds([
-            pad.getCharacterByToken(getToken(target)).getId()
-        ]);
-        tokenDialog.show();
-
+        const character = pad.getCharacterByToken(getToken(target));
         hideDialog(target);
+        presentCharacters([character], character.getName());
 
     });
 
@@ -109,6 +149,7 @@ lookupOne("#character-reminder").addEventListener("click", ({ target }) => {
     const token = getToken(target);
 
     reminder.dataset.coords = JSON.stringify(pad.getTokenPosition(token));
+    reminder.dataset.owner = identify(token);
     Dialog.create(reminder).show();
     hideDialog(target);
 
@@ -159,6 +200,22 @@ const replaceOnPadProcess = {
                 } = data;
 
                 const oldCharacter = pad.getCharacterByToken(lookupOne(token));
+                const details = oldCharacter.playerDetails || {};
+                const oldTeam = oldCharacter.getTeam();
+                const alignment = details.alignment || (
+                    ["townsfolk", "outsider"].includes(oldTeam) ? "good"
+                    : ["minion", "demon"].includes(oldTeam) ? "evil" : ""
+                );
+                if (data.removeReminders && details.seatId) {
+                    pad.reminders.filter(({ reminder }) => reminder.owner === details.seatId)
+                        .forEach(({ reminder }) => pad.removeReminder(reminder));
+                }
+                pad.setPlayerDetails(character, {
+                    ...details,
+                    alignment,
+                    history: [...(details.history || []), `${oldCharacter.getName()} → ${character.getName()}`]
+                });
+                pad.setGhostVote(character, oldCharacter.getHasGhostVote());
                 pad.toggleDead(character, oldCharacter.getIsDead());
                 pad.rotate(character, oldCharacter.getIsUpsideDown());
                 pad.setPlayerName(character, pad.getPlayerName(oldCharacter));
@@ -185,7 +242,8 @@ lookupOne("#character-replace").addEventListener("click", ({ target }) => {
     const token = getToken(target);
     replaceOnPadProcess.data = {
         coords: pad.getTokenPosition(token),
-        token: `#${identify(token)}`
+        token: `#${identify(token)}`,
+        removeReminders: document.querySelector("#replacement-reminders").checked
     };
     characterListDialog.addProcess(replaceOnPadProcess);
     characterListDialog.show();
@@ -272,6 +330,7 @@ characterShowDialog.on(Dialog.SHOW, () => {
 
 characterShowDialog.on(Dialog.HIDE, () => {
     characterNameInput.value = characterNameInput.defaultValue;
+    document.querySelector("#replacement-reminders").checked = false;
 });
 
 lookupOne("#character-remove").addEventListener("click", ({ target }) => {
@@ -499,12 +558,12 @@ gameObserver.on("characters-selected", ({ detail }) => {
         pad.reminders.forEach(({ reminder, token }) => {
 
             const character = store.getCharacter(reminder.getCharacterId());
+            if (!character || !character.getId()) {
+                return;
+            }
             const id = character.getId();
 
-            if (
-                id === "" // Ignore the empty ID - it's a generic character.
-                || ["traveller", "fabled", "loric"].includes(character.getTeam())
-            ) {
+            if (["traveller", "fabled", "loric"].includes(character.getTeam())) {
                 return;
             }
 

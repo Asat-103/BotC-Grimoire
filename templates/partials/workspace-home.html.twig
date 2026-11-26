@@ -1,0 +1,42 @@
+<div class="folio-hero">
+    <div class="folio-hero__content">
+        <p class="folio-kicker">{{ 'redesign.storyteller'|trans }}</p>
+        <h1>{{ 'title'|trans }}</h1>
+        <p class="folio-hero__description">{{ 'redesign.description'|trans }}</p>
+        <div class="folio-actions">
+            <button type="button" class="button folio-primary" id="resume-session" data-view="grimoire" hidden>{{ 'redesign.resume'|trans }}</button>
+            <button type="button" class="button folio-primary" data-activate="select-edition">{{ 'redesign.choose_script'|trans }} <span aria-hidden="true">→</span></button>
+            <button type="button" class="button" id="new-session" hidden>{{ 'redesign.new_game'|trans }}</button>
+        </div>
+    </div>
+</div>
+<section aria-labelledby="edition-heading" class="folio-section">
+    <div class="folio-section__heading">
+        <h2 id="edition-heading">{{ 'setup.editions.official'|trans }}</h2>
+        <button type="button" class="button" data-activate="select-edition" data-edition-import>{{ 'setup.editions.upload'|trans }}</button>
+    </div>
+    <div class="edition-cards">
+        {% for edition, title in { tb: 'trouble_brewing', snv: 'sects_and_violets', bmr: 'bad_moon_rising' } %}
+        {% set artwork = {tb: 'imp_e', snv: 'vortox_e', bmr: 'zombuul_e'} %}
+        <button type="button" class="edition-card edition-card--{{ edition }}" data-edition="{{ edition }}">
+            <span class="edition-card__art" aria-hidden="true"><img src="{{ asset('build/img/roles/' ~ artwork[edition] ~ '.webp') }}" alt="" loading="lazy"></span>
+            <span class="edition-card__content">
+                <strong>{{ ('setup.editions.' ~ title)|trans }}</strong>
+                <small>{{ ('redesign.editions.' ~ edition)|trans }}</small>
+            </span>
+            <span class="edition-card__arrow" aria-hidden="true">→</span>
+        </button>
+        {% endfor %}
+    </div>
+</section>
+<section class="folio-section" aria-labelledby="library-heading">
+    <div class="folio-section__heading"><h2 id="library-heading">{{ 'redesign.script_library'|trans }}</h2>
+        <button class="button" type="button" id="favourite-script" hidden>{{ 'redesign.favourite_script'|trans }}</button>
+    </div>
+    <label class="folio-search">{{ 'redesign.search_scripts'|trans }} <input class="input" id="library-search" type="search" data-no-store></label>
+    <div class="folio-records" id="script-library"></div>
+</section>
+<section class="folio-section" aria-labelledby="sessions-heading">
+    <div class="folio-section__heading"><h2 id="sessions-heading">{{ 'redesign.saved_games'|trans }}</h2></div>
+    <div class="folio-records" id="saved-sessions"></div>
+</section>

@@ -7,6 +7,11 @@
 } %}
     {% import 'macros/forms.html.twig' as forms %}
     {% block body %}
+    <label class="folio-search">{{ 'redesign.search_reminders'|trans }} <input class="input" id="reminder-search" type="search" data-no-store></label>
+    <form class="folio-form" id="create-reminder">
+        <label>{{ 'redesign.custom_reminder'|trans }} <input name="reminder" class="input" maxlength="42" required data-no-store></label>
+        <button type="submit" class="button">{{ 'redesign.create_reminder'|trans }}</button>
+    </form>
     <ul id="reminder-list__list" class="button-list button-list--reminder"></ul>
     {{ forms.switch({
         node: 'p',

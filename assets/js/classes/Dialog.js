@@ -175,6 +175,9 @@ export default class Dialog {
      * Makes the dialog show.
      */
     show() {
+        if (this.dialog.closest("[data-panel][hidden]")) {
+            document.body.append(this.dialog);
+        }
         this.dialog.showModal();
     }
 

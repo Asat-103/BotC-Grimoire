@@ -247,7 +247,7 @@ TokenStore.ready((tokenStore) => {
         if (
             reminder.getIsGlobal()
             && reminder.getId().endsWith(":0")
-            && character.hasSpecialData("reveal", "replace-character")
+            && character?.hasSpecialData("reveal", "replace-character")
         ) {
             addCharacter(character);
         }
@@ -265,7 +265,7 @@ TokenStore.ready((tokenStore) => {
         if (
             reminder.getIsGlobal()
             && reminder.getId().endsWith(":0")
-            && character.hasSpecialData("reveal", "replace-character")
+            && character?.hasSpecialData("reveal", "replace-character")
         ) {
             removeCharacter(character);
         }

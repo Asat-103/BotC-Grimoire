@@ -1,3 +1,4 @@
+import { presentCharacters } from "../../workspace/presentation.js";
 import Template from "../../classes/Template.js";
 import TokenStore from "../../classes/TokenStore.js";
 import Observer from "../../classes/Observer.js";
@@ -245,9 +246,10 @@ TokenStore.ready((tokenStore) => {
 
     lookupOneCached("#show-all-bluffs").addEventListener("click", ({ target }) => {
 
-        tokenDialog.setIds(bluffGroups.getVisibleGroup().serialise().set);
-        tokenDialog.setMultipleTitle(target.dataset.title);
-        tokenDialog.show();
+        const roles = bluffGroups.getVisibleGroup().serialise().set
+            .map((id) => tokenStore.getCharacter(id))
+            .filter((character) => character && !character.isEmpty());
+        presentCharacters(roles, target.dataset.title);
 
     });
 

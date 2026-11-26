@@ -288,3 +288,134 @@ errors:
     botc_scripts:
         invalid_search: Invalid or empty search term
 
+
+redesign:
+    storyteller: Storyteller workspace
+    description: Set the script, seat your players and run the night from one grimoire.
+    community: Independent community project
+    navigation: Storyteller navigation
+    home: Home
+    script: Script
+    tools: Tools
+    settings: Settings
+    no_script: No script selected
+    search_roles: Search characters
+    hide: Hide
+    hidden: Grimoire hidden
+    handback: Return to Storyteller
+    choose_script: Choose a script
+    resume: Resume game
+    new_game: Start new game
+    saved_games: Saved games
+    no_sessions: Games you archive appear here.
+    new_confirm: Archive this game and start a fresh one?
+    restore_confirm: Archive the current game and open this saved game?
+    remove_confirm: Remove this saved item?
+    restore: Open
+    remove: Remove
+    save_error: Device storage is unavailable or full. The current game was kept.
+    theme: Appearance
+    themes:
+        dark: Dark
+        dim: Dim
+        light: Parchment
+        system: Follow system
+    editions:
+        tb: Suspicion and deception in the village.
+        snv: Changing roles and unreliable information.
+        bmr: Death, survival and unexpected returns.
+    seat_names: Enter one player name per line in seating order.
+    save_seats: Save seating
+    number_seats: Use numbered seats
+    reverse_seats: Reverse seating
+    reuse_seats: Reuse last seating
+    seat: Seat
+    earlier: Move earlier
+    later: Move later
+    assigned: Assigned players
+    no_seats: Add seats before distributing roles.
+    no_roles: Roles appear here after distribution.
+    dead: Dead
+    unassigned: Unassigned
+    count_mismatch: The number of selected roles differs from the number of named seats. Continue?
+    sequential: Pass the phone
+    manual: Assign to seats
+    handover: Hand the device to
+    reveal: Reveal role
+    acknowledge: Memorised
+    finish_deal: Finish distribution
+    manual_confirm: Confirm assignments
+    role_saved: Role distribution complete
+    alignment: Alignment
+    board_layout: Board layout
+    freeform: Freeform
+    circle: Circle
+    grid: Grid
+    list: List
+    fit: Fit board
+    private_bluffs: Present bluffs
+    night: Night
+    day: Day
+    night_focus: Focus mode
+    full_order: Full order
+    previous: Previous
+    next: Next
+    complete: Complete
+    skip: Skip
+    skipped: Skipped
+    reopen: Reopen
+    manual_action: Add a manual action
+    empty_night: No night actions to show. Select a script or add a manual action.
+    day_timer: Day timer
+    timer_minutes: Minutes
+    timer_start: Start or resume
+    timer_pause: Pause
+    timer_reset: Reset
+    front: Front
+    back: Back
+    flip: Flip token
+    editor: Custom information token
+    appearance: Token colour
+    token_ink: Charcoal
+    token_wine: Burgundy
+    token_parchment: Parchment
+    favourite: Favourite
+    duplicate: Duplicate
+    save: Save
+    preview: Preview
+    import: Import tokens
+    export: Export tokens
+    bad_import: This file does not contain valid information tokens.
+    quick_message: Show a message
+    quick_number: Show a number
+    quick_yes: Yes
+    quick_no: No
+    type_message: Message
+    default_alignment: Use character alignment
+    player_note: Private player note
+    player_history: Character and alignment history
+    spent_vote: Dead vote spent
+    script_library: Recent and favourite scripts
+    favourite_script: Favourite current script
+    search_scripts: Search saved scripts
+    no_scripts: Recently used scripts appear here.
+    nominations: Nominations
+    nominee: Nominee
+    votes: Votes
+    record_nomination: Record nomination
+    executed: Executed
+    highest_tally: Highest tally
+    empty_board: Select characters to fill your grimoire.
+    search_reminders: Search reminders
+    custom_reminder: Custom reminder
+    create_reminder: Add custom reminder
+    assigned_reminders: Assigned reminders
+    reminder_owner: Assign to player
+    shuffle_and_deal: Shuffle and deal
+    remove_on_replace: Remove this player's reminders when changing their character
+    front_art: Front artwork
+    back_art: Back artwork
+    art_none: No artwork
+    art_clock: Clock
+    art_seal: Clock seal
+    haptics: Vibrate when revealing roles and flipping tokens

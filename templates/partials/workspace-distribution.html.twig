@@ -1,0 +1,18 @@
+<dialog class="dialog dialog--hide-background privacy-surface" id="seat-distribution" aria-labelledby="distribution-heading">
+    <div class="privacy-surface__content">
+        <h2 id="distribution-heading"></h2>
+        <div id="distribution-manual"></div>
+        <div id="distribution-role"></div>
+        <button class="button folio-primary" type="button" id="distribution-advance"></button>
+        <button class="button" type="button" id="distribution-stop">{{ 'redesign.handback'|trans }}</button>
+    </div>
+    <template id="distribution-labels" data-handover="{{ 'redesign.handover'|trans }}" data-reveal="{{ 'redesign.reveal'|trans }}" data-acknowledge="{{ 'redesign.acknowledge'|trans }}" data-finish="{{ 'redesign.finish_deal'|trans }}" data-manual="{{ 'redesign.manual'|trans }}" data-confirm="{{ 'redesign.manual_confirm'|trans }}" data-done="{{ 'redesign.role_saved'|trans }}"></template>
+</dialog>
+
+<dialog class="dialog dialog--hide-background privacy-surface" id="character-presentation" aria-labelledby="character-presentation-title">
+    <div class="privacy-surface__content">
+        <h2 id="character-presentation-title"></h2>
+        <div id="character-presentation-roles"></div>
+        <button class="button" type="button" id="character-presentation-return">{{ 'redesign.handback'|trans }}</button>
+    </div>
+</dialog>

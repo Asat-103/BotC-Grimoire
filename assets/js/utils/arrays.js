@@ -1,7 +1,7 @@
 /**
  * Creates an array that's a shuffled version of the given array. The original
  * array is not modified.
- * Schwartzian transform.
+ * Fisher–Yates with rejection sampling to avoid modulo bias.
  *
  * @param  {Array} array
  *         Array to shuffle.
@@ -10,16 +10,18 @@
  */
 export function shuffle(array) {
 
-    const numbers = window.crypto.getRandomValues(
-        new Uint16Array(array.length)
-    );
-
-    return Array.from(array, (value, i) => ({
-            value,
-            sort: numbers[i]
-        }))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ value }) => value);
+    const result = Array.from(array);
+    const random = new Uint32Array(1);
+    for (let index = result.length - 1; index > 0; index -= 1) {
+        const range = index + 1;
+        const ceiling = 2 ** 32 - (2 ** 32 % range);
+        do {
+            window.crypto.getRandomValues(random);
+        } while (random[0] >= ceiling);
+        const other = random[0] % range;
+        [result[index], result[other]] = [result[other], result[index]];
+    }
+    return result;
 
 }
 

@@ -4,6 +4,29 @@
 } %}
     {% import 'macros/forms.html.twig' as forms %}
     {% block body %}
+    <div class="folio-board-tools">
+        <label>{{ 'redesign.night'|trans }} <input class="input" id="night-number" type="number" min="1" max="99" value="1" data-no-store></label>
+        <button type="button" class="button" id="night-first">{{ 'night_order.first_night'|trans }}</button>
+        <button type="button" class="button" id="night-other">{{ 'night_order.other_night'|trans }}</button>
+        <button type="button" class="button" id="night-focus-toggle" aria-pressed="false">{{ 'redesign.night_focus'|trans }}</button>
+        <button type="button" class="button" data-view="tools">{{ 'info_tokens.title'|trans }}</button>
+    </div>
+    <div class="folio-panel" id="night-workspace">
+        <progress id="night-progress" value="0" max="1"></progress>
+        <p id="night-position" aria-live="polite"></p>
+        <div id="night-current"></div>
+        <div class="folio-actions">
+            <button type="button" class="button" id="night-previous">{{ 'redesign.previous'|trans }}</button>
+            <button type="button" class="button folio-primary" id="night-complete" data-reopen="{{ 'redesign.reopen'|trans }}">{{ 'redesign.complete'|trans }}</button>
+            <button type="button" class="button" id="night-skip">{{ 'redesign.skip'|trans }}</button>
+            <button type="button" class="button" id="night-next">{{ 'redesign.next'|trans }}</button>
+        </div>
+        <form id="night-manual" class="folio-form">
+            <label>{{ 'redesign.manual_action'|trans }} <input class="input" name="action" required maxlength="300" data-no-store></label>
+            <button type="submit" class="button">{{ 'redesign.save'|trans }}</button>
+        </form>
+        <ol id="night-manual-list" class="folio-records"></ol>
+    </div>
     <div class="carousel js--night-order--carousel">
         {% set nights = {
             'first-night': 'night_order.first_night'|trans,
@@ -28,13 +51,15 @@
         node: 'p',
         label: 'night_order.show_dead'|trans,
         name: 'show-dead',
-        id: 'show-dead'
+        id: 'show-dead',
+        checked: true
     }) }}
     {{ forms.switch({
         node: 'p',
         label: 'night_order.show'|trans,
         name: 'show-all',
-        id: 'show-all'
+        id: 'show-all',
+        checked: true
     }) }}
     {% endblock %}
 {% endembed %}
