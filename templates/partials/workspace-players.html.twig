@@ -7,14 +7,14 @@
         <label for="seating-names">{{ 'redesign.seat_names'|trans }}</label>
         <textarea class="input" id="seating-names" rows="4" data-no-store></textarea>
         <div class="folio-actions">
-            <button class="button folio-primary" type="button" id="apply-seats">{{ 'redesign.save_seats'|trans }}</button>
+            <button class="button folio-primary" type="button" id="continue-seating" data-activate="select-characters">{{ 'redesign.save_and_choose'|trans }}</button>
+            <button class="button" type="button" id="apply-seats">{{ 'redesign.save_seats'|trans }}</button>
             <button class="button" type="button" id="number-seats">{{ 'redesign.number_seats'|trans }}</button>
         </div>
         <ol id="seating-list" class="folio-records"></ol>
         <div class="folio-actions">
             <button class="button" type="button" id="reverse-seats">{{ 'redesign.reverse_seats'|trans }}</button>
             <button class="button" type="button" id="reuse-seats">{{ 'redesign.reuse_seats'|trans }}</button>
-            <button class="button" type="button" data-activate="select-characters">{{ 'setup.buttons.select_characters'|trans }}</button>
         </div>
     </div>
     <div class="folio-panel">

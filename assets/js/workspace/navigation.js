@@ -61,6 +61,13 @@ root.addEventListener("click", ({ target }) => {
     }
 });
 
+const build = document.querySelector("#workspace-build");
+const mainScript = document.querySelector('script[src*="/build/js/main"]');
+if (mainScript) {
+    build.querySelector("code").textContent = new URL(mainScript.src).pathname.split("/").pop();
+    build.hidden = false;
+}
+
 const theme = document.querySelector("#theme-select");
 theme.value = document.documentElement.dataset.theme || "dark";
 if (!theme.value) {

@@ -82,6 +82,7 @@ try { document.documentElement.dataset.theme = localStorage.getItem('pg-theme') 
                         </select>
                     </label>
                     <label class="folio-inline-setting"><input type="checkbox" id="prefer-haptics" data-no-store> {{ 'redesign.haptics'|trans }}</label>
+                    <p class="folio-build" id="workspace-build" hidden>{{ 'redesign.build'|trans }} <code></code></p>
                 </section>
                 {% include 'partials/setup.html.twig' %}
                 {% include 'partials/acknowledgements.html.twig' %}

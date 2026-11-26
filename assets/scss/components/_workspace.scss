@@ -631,3 +631,6 @@ html:has(.body-grimoire) { background: var(--folio-bg); }
     .role-picker__actions { gap: .45rem; }
     .role-picker__actions .button { width: 100%; }
 }
+
+.folio-build { margin-block-start: 1rem; color: var(--folio-muted); overflow-wrap: anywhere; }
+.folio-build code { color: var(--folio-text); }
