@@ -47,17 +47,17 @@ root.addEventListener("click", ({ target }) => {
     }
     if (button.dataset.activate) {
         document.getElementById(button.dataset.activate)?.click();
-        if (button.hasAttribute("data-edition-import")) {
-            document.querySelector('#select-edition-form [data-id="upload"]').open = true;
-        }
     }
-    if (button.dataset.edition) {
-        document.querySelector("#select-edition").click();
-        const section = document.querySelector('#select-edition-form [data-id="official"]');
-        section.open = true;
-        const radio = section.querySelector(`input[value="${button.dataset.edition}"]`);
-        radio.checked = true;
-        radio.dispatchEvent(new Event("input", { bubbles: true }));
+    if (button.dataset.activate === "select-edition" || button.dataset.edition) {
+        if (button.dataset.edition) {
+            document.querySelector("#select-edition").click();
+        }
+        document.querySelector("#select-edition-form").dispatchEvent(new CustomEvent("edition-preset", {
+            detail: {
+                mode: button.hasAttribute("data-edition-import") ? "upload" : "official",
+                edition: button.dataset.edition
+            }
+        }));
     }
 });
 

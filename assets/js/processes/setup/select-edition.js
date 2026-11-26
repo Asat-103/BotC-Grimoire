@@ -6,7 +6,6 @@ import {
     empty,
     lookupOne,
     lookupOneCached,
-    getLabelText,
     replaceContentsMany,
 } from "../../utils/elements.js";
 import {
@@ -349,6 +348,13 @@ function setBotcScripts(scripts) {
     });
 }
 
+botcInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        botcLookup.click();
+    }
+});
+
 botcLookup.addEventListener("click", () => {
     botcResults.hidden = true;
 
@@ -416,19 +422,39 @@ botcLookup.addEventListener("click", () => {
 });
 
 const form = lookupOne("#select-edition-form");
-const sections = form.querySelectorAll(".edition-details[data-id]");
+const sections = [...form.querySelectorAll(".edition-picker__panel")];
+const modeButtons = [...form.querySelectorAll("[data-edition-mode]")];
+const confirmButton = form.querySelector("#confirm-edition");
 
-sections.forEach((section) => {
-    section.querySelectorAll("input,select,textarea,button").forEach((element) => {
-        element.disabled = !section.open;
+function setMode(mode) {
+    sections.forEach((section) => {
+        section.hidden = section.dataset.id !== mode;
+        section.querySelectorAll("input,select,textarea,button").forEach((element) => {
+            element.disabled = section.hidden;
+        });
     });
+    modeButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.editionMode === mode));
+    });
+    form.dataset.mode = mode;
+}
+
+modeButtons.forEach((button) => {
+    button.addEventListener("click", () => setMode(button.dataset.editionMode));
 });
-
-form.addEventListener("toggle", ({ target, newState }) => {
-    target.querySelectorAll("input,select,textarea,button").forEach((element) => {
-        element.disabled = (newState === "closed");
-    });
-}, { capture: true });
+form.addEventListener("edition-preset", ({ detail }) => {
+    setMode(detail.mode || "official");
+    if (detail.edition) {
+        const option = [...form.elements.edition].find(({ value }) => value === detail.edition);
+        if (option) {
+            option.checked = true;
+        }
+    }
+});
+setMode("official");
+Observer.create("game").on("data-unavailable", () => {
+    confirmButton.disabled = true;
+});
 
 form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -437,21 +463,15 @@ form.addEventListener("submit", (event) => {
         return;
     }
 
-    const openSection = Array.prototype.find.call(sections, ({ open }) => open);
-    const mode = openSection?.dataset.id;
+    const mode = form.dataset.mode;
     const data = new FormData(form);
-
-    if (!mode) {
-        console.log(sections);
-        throw new Error("Unable to detect open section");
-    }
 
     TokenStore.ready((tokenStore) => {
         switch (mode) {
             case "official": {
                 const edition = data.get("edition");
                 const radio = lookupOneCached(`input[name="edition"][value="${edition}"]`, form);
-                const meta = { name: getLabelText(radio) };
+                const meta = { name: radio.closest("label").querySelector(".edition-option__title").textContent };
                 const rawMeta = window.PG.scripts[edition]?.find(({ id }) => {
                     return id === "_meta";
                 });
@@ -460,7 +480,14 @@ form.addEventListener("submit", (event) => {
                     Object.assign(meta, rawMeta);
                 }
 
-                announceScript(meta, tokenStore.getScript(edition));
+                const characters = tokenStore.getScript(edition).filter(Boolean);
+                if (!characters.length) {
+                    const error = document.querySelector("#edition-data-error");
+                    error.hidden = false;
+                    return;
+                }
+                document.querySelector("#edition-data-error").hidden = true;
+                announceScript(meta, characters);
 
                 break;
             }

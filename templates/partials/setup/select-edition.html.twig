@@ -3,44 +3,37 @@
 {% embed 'includes/dialog.html.twig' with {
     id: 'edition-list',
     background: 'blur',
-    title: 'setup.editions.title'|trans
+    title: 'setup.editions.title'|trans,
+    class: 'edition-picker'
 } %}
     {% import 'macros/forms.html.twig' as forms %}
     {% block body %}
 
     <form id="select-edition-form" enctype="multipart/form-data">
 
-        <details name="select-edition" class="edition-details" data-id="official" open>
-            <summary class="edition-details__summary">{{ 'setup.editions.official'|trans }}</summary>
-            <div class="edition-details__body">
-                <ul class="no-list">
-                    <li>
-                        {{ forms.radio({
-                            name: 'edition',
-                            value: 'tb',
-                            label: 'setup.editions.trouble_brewing'|trans,
-                            required: true
-                        }) }}
-                    </li>
-                    <li>
-                        {{ forms.radio({
-                            name: 'edition',
-                            value: 'bmr',
-                            label: 'setup.editions.bad_moon_rising'|trans
-                        }) }}
-                    </li>
-                    <li>
-                        {{ forms.radio({
-                            name: 'edition',
-                            value: 'snv',
-                            label: 'setup.editions.sects_and_violets'|trans
-                        }) }}
-                    </li>
-                </ul>
-            </div>
-        </details>
-        <details name="select-edition" class="edition-details" data-id="upload">
-            <summary class="edition-details__summary">{{ 'setup.editions.upload'|trans }}</summary>
+        <div class="edition-picker__modes" role="group" aria-label="{{ 'setup.editions.title'|trans }}">
+            {% for mode, label in {official: 'official', upload: 'upload', url: 'url', paste: 'paste', botc: 'botc'} %}
+                <button type="button" class="button" data-edition-mode="{{ mode }}" aria-pressed="{{ mode == 'official' ? 'true' : 'false' }}">{{ ('setup.editions.' ~ label)|trans }}</button>
+            {% endfor %}
+        </div>
+        <p id="edition-data-error" class="folio-status" role="alert" hidden>{{ 'redesign.data_missing'|trans }}</p>
+        <section class="edition-picker__panel" data-id="official">
+            <fieldset class="edition-picker__choices">
+                <legend class="sr-only">{{ 'setup.editions.official'|trans }}</legend>
+                {% for edition, title in {tb: 'trouble_brewing', snv: 'sects_and_violets', bmr: 'bad_moon_rising'} %}
+                    <label class="edition-option edition-option--{{ edition }}">
+                        <input type="radio" class="sr-only" name="edition" value="{{ edition }}" data-no-store {{ loop.first ? 'checked required' }}>
+                        {% include 'partials/edition-emblem.html.twig' with { edition: edition } only %}
+                        <span>
+                            <strong class="edition-option__title">{{ ('setup.editions.' ~ title)|trans }}</strong>
+                            <small>{{ ('redesign.editions.' ~ edition)|trans }}</small>
+                        </span>
+                        <span class="edition-option__check" aria-hidden="true">✓</span>
+                    </label>
+                {% endfor %}
+            </fieldset>
+        </section>
+        <section class="edition-picker__panel" data-id="upload" hidden>
             <div class="edition-details__body">
                 <label for="custom-script-upload" class="sr-only">{{ 'setup.editions.upload'|trans }}</label>
                 {{ forms.file({
@@ -50,23 +43,20 @@
                     required: true
                 }) }}
             </div>
-        </details>
-        <details name="select-edition" class="edition-details" data-id="url">
-            <summary class="edition-details__summary">{{ 'setup.editions.url'|trans }}</summary>
+        </section>
+        <section class="edition-picker__panel" data-id="url" hidden>
             <div class="edition-details__body">
                 <label for="custom-script-url" class="sr-only">{{ 'setup.editions.url'|trans }}</label>
                 <input type="url" name="custom-script-url" id="custom-script-url" class="input" placeholder="https://www.example.com/script.json" required data-no-store>
             </div>
-        </details>
-        <details name="select-edition" class="edition-details" data-id="paste">
-            <summary class="edition-details__summary">{{ 'setup.editions.paste'|trans }}</summary>
+        </section>
+        <section class="edition-picker__panel" data-id="paste" hidden>
             <div class="edition-details__body">
                 <label for="custom-script-paste" class="sr-only">{{ 'setup.editions.paste'|trans }}</label>
                 <textarea name="custom-script-paste" id="custom-script-paste" class="input" placeholder='["washerwoman","investigator","librarian","chef"]' required></textarea>
             </div>
-        </details>
-        <details name="select-edition" class="edition-details" data-id="botc">
-            <summary class="edition-details__summary">{{ 'setup.editions.botc'|trans }}</summary>
+        </section>
+        <section class="edition-picker__panel" data-id="botc" hidden>
             <div class="edition-details__body">
                 <label for="botc-scripts">{{ 'setup.editions.lookup'|trans }}</label>
                 <div class="media mb-4">
@@ -77,7 +67,7 @@
                         </span>
                     </button>
                 </div>
-                <div id="botc-scripts">
+                <div class="edition-picker__results">
                     <p class="align-centre" id="botc-scripts-loader" hidden>
                         <span class="loader" aria-hidden="true">
                             <span class="loader" aria-hidden="true"></span>
@@ -87,12 +77,12 @@
                     <ul id="botc-scripts-results" class="no-list edition-details__entries" hidden></ul>
                 </div>
             </div>
-        </details>
+        </section>
 
         <template id="botc-scripts-entry">
             <li>
-                <label class="radio edition-details__radio js--botc-scripts--label">
-                    <span class="radio__wrapper">
+                <label class="edition-option edition-option--result js--botc-scripts--label">
+                    <span class="sr-only">
                         <input
                             type="radio"
                             name="botc-script"
@@ -104,13 +94,14 @@
                         <strong class="edition-details__name js--botc-scripts--name"></strong>
                         <small class="edition-details__author js--botc-scripts--author"></small>
                     </span>
+                    <span class="edition-option__check" aria-hidden="true">✓</span>
                 </label>
             </li>
         </template>
 
-        <p>
-            <button type="submit" class="button">
-                <span class="button__text">{{ 'setup.editions.select'|trans }}</span>
+        <p class="edition-picker__confirm">
+            <button type="submit" class="button folio-primary" id="confirm-edition">
+                <span class="button__text">{{ 'redesign.use_script'|trans }}</span>
                 <span class="button__loader" role="progressbar" aria-valuetext="Loading" aria-busy="false" aria-live="assertive" aria-valuemin="0" aria-valuemax="1">
                     <span class="loader" aria-hidden="true"></span>
                 </span>

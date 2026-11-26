@@ -55,18 +55,41 @@ Promise.all([
 
 });
 
-// Add a delay to all event listeners to be registered before being triggered.
-Promise.resolve().then(() => {
-    const gameObserver = Observer.create("game");
-
-    if (!window.PG) {
-        throw new ReferenceError("Unable to find the PG object");
+function loadCatalogue() {
+    if (window.PG) {
+        return Promise.resolve(window.PG);
     }
+    const current = document.querySelector('script[src*="/build/data/"]');
+    const fallback = "/build/data/en_GB.js";
+    if (!current || new URL(current.src).pathname === fallback) {
+        return Promise.reject(new Error("Character data was not built"));
+    }
+    return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = fallback;
+        script.onload = () => resolve(window.PG);
+        script.onerror = () => reject(new Error("Character data was not built"));
+        document.head.append(script);
+    });
+}
 
-    const { roles, jinxes, game, scripts } = window.PG;
-
+// Delay dispatch until all listeners have been registered.
+Promise.resolve().then(loadCatalogue).then((catalogue) => {
+    const { roles, jinxes, game, scripts } = catalogue || {};
+    if (!roles?.length || !Array.isArray(jinxes) || !game?.length || !scripts) {
+        throw new Error("Incomplete character catalogue");
+    }
     gameObserver.trigger("characters-loaded", { characters: roles });
     gameObserver.trigger("jinxes-loaded", { jinxes });
     gameObserver.trigger("team-breakdown-loaded", { breakdown: game });
     gameObserver.trigger("scripts-loaded", { scripts });
+}).catch((error) => {
+    console.error(error);
+    ["workspace-data-error", "edition-data-error"].forEach((id) => {
+        const status = document.getElementById(id);
+        if (status) {
+            status.hidden = false;
+        }
+    });
+    gameObserver.trigger("data-unavailable");
 });

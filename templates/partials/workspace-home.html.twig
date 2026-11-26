@@ -10,6 +10,7 @@
         </div>
     </div>
 </div>
+<p id="workspace-data-error" class="folio-status" role="alert" hidden>{{ 'redesign.data_missing'|trans }}</p>
 <section aria-labelledby="edition-heading" class="folio-section">
     <div class="folio-section__heading">
         <h2 id="edition-heading">{{ 'setup.editions.official'|trans }}</h2>
@@ -17,9 +18,8 @@
     </div>
     <div class="edition-cards">
         {% for edition, title in { tb: 'trouble_brewing', snv: 'sects_and_violets', bmr: 'bad_moon_rising' } %}
-        {% set artwork = {tb: 'imp_e', snv: 'vortox_e', bmr: 'zombuul_e'} %}
         <button type="button" class="edition-card edition-card--{{ edition }}" data-edition="{{ edition }}">
-            <span class="edition-card__art" aria-hidden="true"><img src="{{ asset('build/img/roles/' ~ artwork[edition] ~ '.webp') }}" alt="" loading="lazy"></span>
+            <span class="edition-card__art">{% include 'partials/edition-emblem.html.twig' with { edition: edition } only %}</span>
             <span class="edition-card__content">
                 <strong>{{ ('setup.editions.' ~ title)|trans }}</strong>
                 <small>{{ ('redesign.editions.' ~ edition)|trans }}</small>

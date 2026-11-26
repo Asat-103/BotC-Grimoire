@@ -419,3 +419,7 @@ redesign:
     art_clock: Clock
     art_seal: Clock seal
     haptics: Vibrate when revealing roles and flipping tokens
+    data_missing: Character data is missing. From the project folder, run npm run preview:assets, then npm run build and reload.
+    board_management: Manage board
+    role_breakdown: View role counts by player count
+    use_script: Use this script
