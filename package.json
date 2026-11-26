@@ -19,6 +19,7 @@
         "dev": "encore dev",
         "watch": "encore dev --watch",
         "build": "encore production --progress",
+        "preview": "bash tools/preview.sh",
         "preview:assets": "node tools/preview-assets.mjs"
     }
 }

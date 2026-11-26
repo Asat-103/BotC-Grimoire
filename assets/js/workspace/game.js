@@ -118,9 +118,11 @@ function renderSeating() {
         });
     });
 }
-document.querySelector("#apply-seats").addEventListener("click", () => {
+function saveSeatNames() {
     setSeats(seatingInput.value.split(/\r?\n/).map((name) => name.trim()).filter(Boolean).slice(0, 30));
-});
+}
+document.querySelector("#apply-seats").addEventListener("click", saveSeatNames);
+document.querySelector("#continue-seating").addEventListener("click", saveSeatNames);
 document.querySelector("#number-seats").addEventListener("click", () => {
     setSeats(Array.from({ length: Number(playerCount.value) }, (_, index) => `${WORKSPACE.seat} ${index + 1}`));
 });

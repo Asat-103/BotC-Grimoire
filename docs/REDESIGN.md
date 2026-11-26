@@ -29,7 +29,7 @@ Run `npm run build` after preparing assets as described in CONTRIBUTING.md. Run 
 
 New interface copy uses Symfony’s English fallback until translated. The original information phrases remain individual entries. The publisher’s glossary describes the tokens and leaves reverse-side pairings undocumented. [Clocktower glossary](https://wiki.bloodontheclocktower.com/Glossary)
 
-The banner is an original generated illustration. Edition cards use representative character artwork from the upstream asset pipeline.
+The banner and edition emblems are original generated illustrations.
 
 A first online visit is required for offline play. The worker caches the installed app’s visited locale and eligible same-origin assets. Public script publishing, remote imports and uncached remote artwork still require a connection. The worker does not cache private session state, which is stored locally with the existing game save.
 
@@ -40,13 +40,10 @@ The current Composer lock needs PHP 8.4 or newer. The upstream PHPStan run on th
 With curl installed, the English preview for the official editions can use the published upstream catalogue and token images without starting a database or running migrations. The helper downloads missing files into the existing ignored asset directories. It checks the preview catalogue against its expected SHA-256 digest. The usual fetch and translate commands remain available for a complete multilingual setup.
 
 ```sh
-composer install
-npx --yes yarn@1.22.22 install --frozen-lockfile
-npm run preview:assets
-npm run build
-APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
-APP_ENV=prod APP_DEBUG=0 php -S 127.0.0.1:8000 -t public
+npm run preview
 ```
+
+Run the preview in Ubuntu on Windows. It checks the installed tools, installs locked dependencies, prepares artwork, builds the frontend and clears Symfony’s production cache before starting PHP. Compare the build filename printed in the terminal with **Settings → Build** to verify that the browser loaded the current build.
 
 Open [the English preview](http://localhost:8000/en_GB/). Custom homebrew sharing still needs the MySQL database. Official edition emblems are bundled original illustrations, so their display does not depend on downloading the role images.
 

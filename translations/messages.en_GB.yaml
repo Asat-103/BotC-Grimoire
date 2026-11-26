@@ -423,3 +423,5 @@ redesign:
     board_management: Manage board
     role_breakdown: View role counts by player count
     use_script: Use this script
+    build: Build
+    save_and_choose: Save seats and choose characters
