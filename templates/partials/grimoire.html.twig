@@ -15,6 +15,11 @@
         <button type="button" class="button" id="fit-board">{{ 'redesign.fit'|trans }}</button>
         <button type="button" class="button" data-activate="select-characters">{{ 'setup.buttons.select_characters'|trans }}</button>
     </div>
+    <div class="folio-board-shortcuts">
+        {% include 'partials/grimoire/add-token.html.twig' %}
+        {% include 'partials/grimoire/add-reminder.html.twig' %}
+        {% include 'partials/grimoire/add-traveller.html.twig' %}
+    </div>
     <div class="pad-wrapper">
         <div class="pad pad--growable js--pad"></div>
         <div class="folio-board-empty" id="board-empty">
@@ -26,16 +31,16 @@
 
     {% include 'partials/grimoire/demon-bluffs.html.twig' %}
 
+    <details class="folio-board-management">
+    <summary>{{ 'redesign.board_management'|trans }}</summary>
     <ul class="button-list mt-4">
-        <li>{% include 'partials/grimoire/add-token.html.twig' %}</li>
-        <li>{% include 'partials/grimoire/add-reminder.html.twig' %}</li>
-        <li>{% include 'partials/grimoire/add-traveller.html.twig' %}</li>
         <li>{% include 'partials/grimoire/add-fabled.html.twig' %}</li>
         <li>{% include 'partials/grimoire/show-tokens.html.twig' %}</li>
         <li>{% include 'partials/grimoire/export-game.html.twig' %}</li>
         <li><button type="button" class="button button--full-height" id="reset-height">{{ 'grimoire.grimoire.reset_height'|trans }}</button></li>
         <li><button type="button" class="button button--full-height button--warning" id="clear-grimoire" data-confirm="{{ 'grimoire.grimoire.clear_grimoire_warning'|trans }}">{{ 'grimoire.grimoire.clear_grimoire'|trans }}</button></li>
     </ul>
+    </details>
 
     <details id="grimoire-settings" class="pad pad--bluffs mt-4">
         <summary class="pad__title">{{ 'grimoire.grimoire.token_settings'|trans }}</summary>

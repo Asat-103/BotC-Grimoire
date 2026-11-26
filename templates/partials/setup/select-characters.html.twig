@@ -8,7 +8,7 @@
     {% import 'macros/forms.html.twig' as forms %}
     {% block body %}
     <form id="player-select">
-        <label class="folio-search">{{ 'redesign.search_roles'|trans }} <input class="input" id="character-search" type="search" data-no-store></label>
+        <label class="folio-search role-picker__search">{{ 'redesign.search_roles'|trans }} <input class="input" id="character-search" type="search" data-no-store></label>
 
         <template id="breakdown-player">
             <tr class="breakdown__row breakdown__row--[id] js--breakdown--row">
@@ -23,12 +23,15 @@
             </tr>
         </template>
 
+        <details class="role-picker__breakdown">
+        <summary>{{ 'redesign.role_breakdown'|trans }}</summary>
         <div class="breakdown no-print">
             <table class="breakdown__table breakdown__table--highlighted" id="breakdown-table">
                 <caption class="sr-only">{{ 'sheet.breakdown'|trans }}</caption>
                 <tbody id="breakdown-body"></tbody>
             </table>
         </div>
+        </details>
 
         {{ forms.range({
             classes: 'mb-4',
@@ -100,7 +103,7 @@
 
         <input type="text" name="validation" id="player-select-validation" class="sr-only" aria-label="Validation" aria-description="This field exists just to aid with validation">
 
-        <ul class="button-list">
+        <ul class="button-list role-picker__actions">
             <li><button type="submit" class="button button--full-height">{{ 'setup.character_select.draw_characters'|trans }}</button></li>
             <li><button type="submit" class="button button--full-height" id="player-select-sequential">{{ 'redesign.sequential'|trans }}</button></li>
             <li><button type="submit" class="button button--full-height" id="player-select-manual">{{ 'redesign.manual'|trans }}</button></li>
@@ -172,6 +175,7 @@
             </span>
             <span class="character-select__name js--character-select--name"></span>
             <span class="character-select__ability js--character-select--ability"></span>
+            <span class="edition-option__check" aria-hidden="true">✓</span>
         </label>
     </div>
 </template>

@@ -1,4 +1,4 @@
-const CACHE = "pocket-grimoire-shell-v1";
+const CACHE = "pocket-grimoire-shell-v2";
 const localeHome = /^\/[a-z]{2,3}(?:_[A-Z]{2})?\/$/;
 const publicAsset = /^\/(?:build\/(?:css|js|data|fonts|img|images)\/[^?#]+|build\/[\w.-]+\.js|site\.webmanifest|android-chrome-(?:192|512)x(?:192|512)\.png)$/;
 
