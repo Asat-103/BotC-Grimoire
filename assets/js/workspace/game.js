@@ -239,6 +239,36 @@ function toggleFavourite(script) {
 librarySearch.addEventListener("input", renderLibrary);
 favouriteScript.addEventListener("click", () => toggleFavourite(selectedScript));
 
+function renderScriptHeading(meta) {
+    const heading = document.querySelector("#reference-title");
+    const badge = heading.querySelector(".folio-script-title__art span");
+    const image = heading.querySelector("img");
+    const title = currentEdition.textContent;
+    heading.hidden = !scriptRoles.length;
+    heading.querySelector("h2").textContent = title;
+    badge.textContent = [...title.toLocaleUpperCase()].slice(0, 2).join("");
+    badge.hidden = false;
+    image.hidden = true;
+    image.removeAttribute("src");
+    const candidate = meta?.logo || meta?.image;
+    if (typeof candidate !== "string" || !candidate) {
+        return;
+    }
+    try {
+        const source = new URL(candidate, location.href);
+        if (source.protocol === "https:" || (source.protocol === "http:" && source.origin === location.origin)) {
+            image.referrerPolicy = "no-referrer";
+            image.onload = () => {
+                image.hidden = false;
+                badge.hidden = true;
+            };
+            image.src = source.href;
+        }
+    } catch {
+        // Keep the title initials when imported artwork has no valid URL.
+    }
+}
+
 function renderScript() {
     const reference = document.querySelector("#script-reference");
     const query = roleSearch.value.trim().toLocaleLowerCase();
@@ -285,11 +315,14 @@ roleSearch.addEventListener("input", renderScript);
 game.on("characters-selected", ({ detail }) => {
     scriptRoles = detail.characters;
     syncCount();
-    currentEdition.textContent = detail.meta?.name || document.querySelector("#select-edition").textContent;
+    currentEdition.textContent = typeof detail.meta?.name === "string" && detail.meta.name.trim()
+        ? detail.meta.name
+        : document.querySelector("#select-edition").textContent;
+    renderScriptHeading(detail.meta);
     const wasSelecting = document.querySelector("#edition-list").open;
     const characters = detail.characters.map((role) => role.isCustom() ? role.getAllData() : role.getId());
     if (characters.length) {
-        const name = detail.meta?.name || currentEdition.textContent;
+        const name = currentEdition.textContent;
         const id = JSON.stringify([name, detail.game, characters.map((role) => typeof role === "string" ? role : role.id)]);
         const favourite = library.some((entry) => entry.id === id && entry.favourite);
         selectedScript = { id, name, characters, meta: detail.meta, game: detail.game, favourite };

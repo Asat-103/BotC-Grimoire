@@ -413,3 +413,9 @@ redesign:
     reminder_owner: Assign to player
     shuffle_and_deal: Shuffle and deal
     remove_on_replace: Remove this player's reminders when changing their character
+    front_art: Front artwork
+    back_art: Back artwork
+    art_none: No artwork
+    art_clock: Clock
+    art_seal: Clock seal
+    haptics: Vibrate when revealing roles and flipping tokens

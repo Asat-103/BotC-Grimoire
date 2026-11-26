@@ -20,7 +20,8 @@ Use dark felt, brass details, editorial serif headings and restrained burgundy. 
 - [x] Add a two-sided information-token editor and an offline app shell.
 - [x] Add private player notes and role history, favourites and recents, and a manual nomination log.
 - [x] Add reusable custom reminders, player assignment and repositioning.
-- [ ] Add per-side artwork and optional haptics, and complete native Android and tablet QA.
+- [x] Add per-side artwork and optional haptics.
+- [ ] Complete native Android and tablet hardware QA.
 - [ ] Investigate individual-device delivery separately. A future implementation needs a secure private handoff per player.
 
 Run `npm run build` after preparing assets as described in CONTRIBUTING.md. Run `vendor/bin/phpstan analyse --memory-limit=512M` and `bin/console lint:twig templates` after installing Composer dependencies.

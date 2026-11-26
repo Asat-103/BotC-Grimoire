@@ -1,3 +1,4 @@
+import { vibrate } from "./preferences.js";
 import Observer from "../classes/Observer.js";
 import { shuffle } from "../utils/arrays.js";
 import { getSeats } from "./game.js";
@@ -50,12 +51,29 @@ function renderManual() {
             select.add(option);
         });
         select.selectedIndex = seatIndex;
-        select.addEventListener("change", () => {
+        function swap(roleIndex) {
             const old = currentAssignments[seatIndex];
-            const other = currentAssignments.indexOf(select.selectedIndex);
-            currentAssignments[seatIndex] = select.selectedIndex;
+            const other = currentAssignments.indexOf(roleIndex);
+            if (other < 0 || other === seatIndex) {
+                return;
+            }
+            currentAssignments[seatIndex] = roleIndex;
             currentAssignments[other] = old;
+            select.selectedIndex = roleIndex;
             manualHolder.querySelectorAll("select")[other].selectedIndex = old;
+        }
+        select.addEventListener("change", () => swap(select.selectedIndex));
+        label.draggable = true;
+        label.addEventListener("dragstart", ({ dataTransfer }) => {
+            dataTransfer.setData("application/x-pg-role", String(currentAssignments[seatIndex]));
+        });
+        label.addEventListener("dragover", (event) => event.preventDefault());
+        label.addEventListener("drop", (event) => {
+            const value = event.dataTransfer.getData("application/x-pg-role");
+            if (value !== "") {
+                event.preventDefault();
+                swap(Number(value));
+            }
         });
         manualHolder.append(label);
     });
@@ -87,6 +105,7 @@ advance.addEventListener("click", () => {
         dialog.close();
     } else if (stage === "handover") {
         stage = "role";
+        vibrate();
         const role = roles[index];
         const ability = document.createElement("p");
         const team = document.createElement("p");

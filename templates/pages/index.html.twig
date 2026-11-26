@@ -59,6 +59,10 @@ try { document.documentElement.dataset.theme = localStorage.getItem('pg-theme') 
             <div data-panel="script" hidden>
                 <section class="folio-section">
                     <h1>{{ 'redesign.script'|trans }}</h1>
+                    <div class="folio-script-title" id="reference-title" hidden>
+                        <span class="folio-script-title__art" aria-hidden="true"><span></span><img alt="" hidden></span>
+                        <h2></h2>
+                    </div>
                     <div class="folio-actions">
                         <button class="button" type="button" data-activate="select-edition">{{ 'setup.buttons.select_edition'|trans }}</button>
                         <button class="button" type="button" data-activate="qr-code-button">{{ 'setup.buttons.qr_code_button'|trans }}</button>
@@ -77,6 +81,7 @@ try { document.documentElement.dataset.theme = localStorage.getItem('pg-theme') 
                             {% endfor %}
                         </select>
                     </label>
+                    <label class="folio-inline-setting"><input type="checkbox" id="prefer-haptics" data-no-store> {{ 'redesign.haptics'|trans }}</label>
                 </section>
                 {% include 'partials/setup.html.twig' %}
                 {% include 'partials/acknowledgements.html.twig' %}

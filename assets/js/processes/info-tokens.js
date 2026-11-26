@@ -35,6 +35,8 @@ function edit(token = null) {
         form.elements.front.value = definition.front;
         form.elements.back.value = definition.back;
         form.elements.color.value = definition.color;
+        form.elements.frontArt.value = definition.frontArt;
+        form.elements.backArt.value = definition.backArt;
         form.elements.favourite.checked = definition.favourite;
     }
     editor.show();
@@ -55,6 +57,8 @@ form.addEventListener("submit", (event) => {
         front: fields.get("front"),
         back: fields.get("back"),
         color: fields.get("color"),
+        frontArt: fields.get("frontArt"),
+        backArt: fields.get("backArt"),
         favourite: fields.has("favourite")
     });
     if (!definition) {

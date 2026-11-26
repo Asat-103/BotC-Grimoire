@@ -120,6 +120,15 @@
     <form id="info-editor-form" class="folio-form">
         <label>{{ 'redesign.front'|trans }}<textarea class="input" name="front" required maxlength="1200" rows="3" data-no-store></textarea></label>
         <label>{{ 'redesign.back'|trans }}<textarea class="input" name="back" maxlength="1200" rows="3" data-no-store></textarea></label>
+        {% for side, label in {frontArt: 'front_art', backArt: 'back_art'} %}
+            <label>{{ ('redesign.' ~ label)|trans }}
+                <select class="input" name="{{ side }}" data-no-store>
+                    {% for artwork in ['none', 'clock', 'seal'] %}
+                        <option value="{{ artwork == 'none' ? '' : artwork }}">{{ ('redesign.art_' ~ artwork)|trans }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        {% endfor %}
         <label>{{ 'redesign.appearance'|trans }}
             <select class="input" name="color" data-no-store>
                 <option value="ink">{{ 'redesign.token_ink'|trans }}</option>

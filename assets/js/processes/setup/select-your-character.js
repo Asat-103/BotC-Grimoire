@@ -1,3 +1,4 @@
+import { vibrate } from "../../workspace/preferences.js";
 import Store from "../../classes/Store.js";
 import Observer from "../../classes/Observer.js";
 import Dialog from "../../classes/Dialog.js";
@@ -80,6 +81,7 @@ lookupOneCached("#character-choice").addEventListener("click", ({ target }) => {
 
     const role = concealedRoles.get(element);
     if (role) {
+        vibrate();
         gameObserver.trigger("character-drawn", { element, character: role.clone() });
     }
 

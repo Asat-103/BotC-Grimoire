@@ -1,6 +1,11 @@
+import { vibrate } from "../workspace/preferences.js";
 import { identify } from "../utils/elements.js";
 
 const colors = ["ink", "wine", "parchment"];
+const artwork = {
+    clock: "/build/img/token/clockface.webp",
+    seal: "/build/img/token/clockface-2.webp"
+};
 
 function appendFormatted(element, value) {
     element.replaceChildren();
@@ -35,6 +40,8 @@ export default class InfoToken {
             front: value.front,
             back: value.back || "",
             color: colors.includes(value.color) ? value.color : "ink",
+            frontArt: Object.hasOwn(artwork, value.frontArt) ? value.frontArt : "",
+            backArt: Object.hasOwn(artwork, value.backArt) ? value.backArt : "",
             favourite: value.favourite === true
         };
     }
@@ -82,8 +89,15 @@ export default class InfoToken {
     updateDefinition(definition) {
         this.definition = definition;
         if (definition) {
-            appendFormatted(this.front, definition.front);
-            appendFormatted(this.back, definition.back);
+            [[this.front, definition.front, definition.frontArt], [this.back, definition.back, definition.backArt]].forEach(([face, content, art]) => {
+                appendFormatted(face, content);
+                if (art) {
+                    const image = document.createElement("img");
+                    image.src = artwork[art];
+                    image.alt = "";
+                    face.prepend(image);
+                }
+            });
             this.dialog.dataset.color = definition.color;
         } else {
             // Built-in and translated token markup comes from the Twig catalogue.
@@ -109,6 +123,7 @@ export default class InfoToken {
     flipSide() {
         if (this.definition?.back) {
             this.setSide(!this.backVisible);
+            vibrate();
         }
     }
 

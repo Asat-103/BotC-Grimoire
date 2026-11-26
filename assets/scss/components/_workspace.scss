@@ -507,3 +507,9 @@ html:has(.body-grimoire) { background: var(--folio-bg); }
 .folio-inline-setting { display: flex; align-items: center; gap: .5rem; margin-top: .7rem; }
 #seating-count { width: 5rem; }
 .night-action .folio-actions { margin-top: .55rem; }
+.info-token__face img { width: min(100px, 26vw); height: min(80px, 22vh); object-fit: contain; margin: 0 auto .75rem; filter: invert(.75) sepia(.25); }
+.info-token[data-color="parchment"] .info-token__face img { filter: none; }
+.folio-script-title { display: flex; align-items: center; gap: .8rem; margin: 0 0 .85rem; }
+.folio-script-title h2 { margin: 0; }
+.folio-script-title__art { display: grid; place-items: center; flex: 0 0 58px; height: 58px; background: var(--folio-raised); color: var(--folio-gold); border: 1px solid var(--folio-line); border-radius: 50%; font: 1.1rem var(--serif-font); overflow: hidden; }
+.folio-script-title__art img { width: 100%; height: 100%; object-fit: contain; }
