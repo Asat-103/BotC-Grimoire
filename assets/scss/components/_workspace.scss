@@ -623,6 +623,7 @@ html:has(.body-grimoire) { background: var(--folio-bg); }
 #character-select .character-select__characters > *,
 .role-picker__actions > * { width: auto; min-width: 0; }
 #character-select .character-select__image-wrapper::before { content: none; }
+#character-select .switch { align-items: center; }
 #character-select .switch__label { display: flex; align-items: center; min-block-size: 48px; cursor: pointer; }
 .role-picker__breakdown > summary { min-height: 48px; align-content: center; cursor: pointer; }
 .role-picker__breakdown .breakdown { overflow-x: auto; }
