@@ -1,4 +1,7 @@
 import Observer from "../../classes/Observer.js";
+import Store from "../../classes/Store.js";
+import ReminderToken from "../../classes/ReminderToken.js";
+import { makeUUID } from "../../utils/strings.js";
 import Dialog from "../../classes/Dialog.js";
 import TokenStore from "../../classes/TokenStore.js";
 import {
@@ -14,11 +17,31 @@ const pad = lookupOneCached(".js--pad").pad;
 const reminderList = lookupOneCached("#reminder-list");
 const reminderListDialog = Dialog.create(reminderList);
 
+const reminderSearch = lookupOne("#reminder-search");
+reminderSearch.addEventListener("input", () => {
+    const query = reminderSearch.value.trim().toLocaleLowerCase();
+    lookup("#reminder-list__list li").forEach((item) => {
+        item.hidden = !item.textContent.toLocaleLowerCase().includes(query);
+    });
+});
+reminderListDialog.on(Dialog.HIDE, () => {
+    reminderSearch.value = "";
+    lookup("#reminder-list__list li[hidden]").forEach((item) => { item.hidden = false; });
+    delete reminderList.dataset.coords;
+    delete reminderList.dataset.owner;
+});
+
 function getCoords(element) {
     return JSON.parse(element.dataset.coords || "null");
 }
 
-function addReminderQuick(target, tokenStore, coords) {
+function setOwner(reminder, player) {
+    if (player && !player.playerDetails?.seatId) {
+        pad.setPlayerDetails(player, { ...player.playerDetails, seatId: makeUUID() });
+    }
+    pad.setReminderOwner(reminder, player?.playerDetails?.seatId);
+}
+function addReminderQuick(target, tokenStore, coords, owner) {
 
     const button = target?.closest("[data-reminder-id]");
 
@@ -32,7 +55,10 @@ function addReminderQuick(target, tokenStore, coords) {
     } = pad.addReminder(clone);
 
     if (coords) {
-        pad.moveToken(token, coords.x, coords.y);
+        pad.moveToken(token, coords.x + 22, coords.y + 18);
+    }
+    if (owner) {
+        setOwner(clone, pad.getCharacterByToken(document.getElementById(owner)));
     }
 
     reminderListDialog.hide();
@@ -65,7 +91,7 @@ TokenStore.ready((tokenStore) => {
             toggleReminder(target);
         } else {
 
-            addReminderQuick(target, tokenStore, getCoords(reminderList));
+            addReminderQuick(target, tokenStore, getCoords(reminderList), reminderList.dataset.owner);
             reminderListDialog.hide();
 
         }
@@ -104,7 +130,8 @@ TokenStore.ready((tokenStore) => {
             addReminderQuick(
                 lookupOne(`.js--reminder-list--button[data-reminder-id="${checkbox.value}"]`),
                 tokenStore,
-                coords
+                coords,
+                reminderList.dataset.owner
             );
             checkbox.checked = false;
 
@@ -119,13 +146,73 @@ TokenStore.ready((tokenStore) => {
     // Add a reminder token to the page if the recently-added-reminder is clicked.
     recentReminders.addEventListener("click", ({ target }) => {
 
-        addReminderQuick(target, tokenStore, getCoords(recentReminders));
+        addReminderQuick(target, tokenStore, getCoords(recentReminders), recentReminders.dataset.owner);
         Dialog.create(lookupOneCached("#character-show")).hide();
 
     });
 
     const reminderDialog = Dialog.create(lookupOne("#reminder-show"));
     const reminderHolder = lookupOne("#reminder-show-token");
+    const ownerSelect = lookupOne("#reminder-owner");
+    ownerSelect.addEventListener("change", () => {
+        const token = lookupOne(reminderHolder.dataset.token);
+        const reminder = pad.getReminderByToken(token);
+        const player = pad.getCharacterByToken(document.getElementById(ownerSelect.value));
+        if (reminder) {
+            setOwner(reminder, player);
+            if (player) {
+                const { x, y } = pad.getTokenPosition(pad.getInfoByCharacter(player).token);
+                pad.moveToken(token, x + 22, y + 18);
+            }
+        }
+    });
+    tokenObserver.on("token-drop", ({ detail: { token } }) => {
+        const reminder = pad.getReminderByToken(token);
+        if (!reminder || pad.element.dataset.layout !== "freeform") {
+            return;
+        }
+        const bounds = token.getBoundingClientRect();
+        const x = bounds.x + bounds.width / 2;
+        const y = bounds.y + bounds.height / 2;
+        const player = pad.characters.find(({ token: playerToken }) => {
+            const rect = playerToken.getBoundingClientRect();
+            return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+        });
+        const owner = player?.character;
+        if (reminder.owner || owner) {
+            setOwner(reminder, owner);
+        }
+    });
+    const store = Store.create("pocket-grimoire");
+    function registerCustomReminder(definition) {
+        const reminder = tokenStore.createReminder({
+            id: definition.id,
+            text: definition.text,
+            name: "",
+            image: "/build/img/roles/generic/good.webp",
+            isGlobal: true
+        }, 0);
+        ReminderToken.addGlobal(reminder);
+        return reminder;
+    }
+    store.data.customReminders.forEach(registerCustomReminder);
+    lookupOne("#create-reminder").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const input = event.currentTarget.elements.reminder;
+        const text = input.value.trim();
+        if (!text) {
+            return;
+        }
+        const definition = { id: `customreminder${makeUUID()}`, text };
+        const reminder = registerCustomReminder(definition);
+        store.data.customReminders.push(definition);
+        store.write();
+        const row = reminder.drawList();
+        const trigger = row.querySelector("button");
+        lookupOne("#reminder-list__list").append(row);
+        addReminderQuick(trigger, tokenStore, getCoords(reminderList), reminderList.dataset.owner);
+        input.value = "";
+    });
 
     // Populate the reminder dialog as a reminder is clicked.
     tokenObserver.on("reminder-click", ({ detail }) => {
@@ -133,7 +220,13 @@ TokenStore.ready((tokenStore) => {
         const {
             element
         } = detail;
-        const reminder = tokenStore.getReminder(element.dataset.reminder);
+        const reminder = pad.getReminderByToken(element);
+        ownerSelect.replaceChildren(new Option(WORKSPACE.unassigned, ""));
+        pad.characters.forEach(({ character, token }, index) => {
+            const option = new Option(pad.getPlayerName(character) || `${WORKSPACE.seat} ${index + 1}`, identify(token));
+            option.selected = Boolean(reminder.owner && reminder.owner === character.playerDetails?.seatId);
+            ownerSelect.add(option);
+        });
 
         empty(reminderHolder).append(reminder.drawToken());
         reminderHolder.dataset.token = `#${identify(element)}`;

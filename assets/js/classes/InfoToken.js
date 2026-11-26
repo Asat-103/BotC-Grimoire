@@ -1,307 +1,123 @@
-import {
-    identify,
-    lookupOne
-} from "../utils/elements.js";
-import {
-    markdown2html,
-    striptags
-} from "../utils/strings.js";
+import { identify } from "../utils/elements.js";
 
-/**
- * Handles info tokens.
- */
+const colors = ["ink", "wine", "parchment"];
+
+function appendFormatted(element, value) {
+    element.replaceChildren();
+    value.split(/(\*\*[^*]+\*\*)/).forEach((part) => {
+        if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+            const strong = document.createElement("strong");
+            strong.textContent = part.slice(2, -2);
+            element.append(strong);
+        } else {
+            element.append(part);
+        }
+    });
+}
+
 export default class InfoToken {
-
-    /**
-     * The prefix for the ID of any info token dialog.
-     * @type {String}
-     */
-    static get ID_PREFIX() {
-        return "info-token-";
-    }
-
-    /**
-     * Stores templates that all info tokens will refer to.
-     *
-     * @param {Object} templates
-     *        A list of all templates that the info tokens will refer to.
-     */
     static setTemplates(templates) {
-
-        /**
-         * A list of all templates that this info tokens will refer to.
-         * @type {Object}
-         */
         this.templates = templates;
-
     }
 
-    /**
-     * Stores holders that all info tokens will draw to.
-     *
-     * @param {Object} templates
-     *        A list of all templates that the info tokens will refer to.
-     */
     static setHolders(holders) {
-
-        /**
-         * A list of all holders that this info tokens will draw to.
-         * @type {Object}
-         */
         this.holders = holders;
-
     }
 
-    /**
-     * Converts the text into a unique ID.
-     *
-     * @param  {String} text
-     *         Text to act as a prefix for the ID.
-     * @return {String}
-     *         Unique ID.
-     */
-    static makeId(text) {
-
-        const lower = text.replace(/\W/g, "").toLowerCase();
-
-        return identify({}, `${this.ID_PREFIX}${lower}-`);
-
-    }
-
-    /**
-     * Interprets the given object to make sure it has the correct keys for the
-     * data.
-     *
-     * @param  {Object} data
-     *         Data to interpret.
-     * @param  {String} [raw]
-     *         The raw text to convert into markup (markdown).
-     * @param  {String} markup
-     *         Markup for the dialog box.
-     * @param  {String} [id]
-     *         ID for the dialog box. If ommitted, one will be generated - see
-     *         {@link InfoToken.makeId}.
-     * @param  {String} [colour="grey"]
-     *         Colour of the button and dialog box.
-     * @param  {Boolean} [custom=false]
-     *         Whether or not the info token is custom-made.
-     * @return {Object}
-     *         Interpretted data.
-     */
-    static interpret({ raw, markup, id, colour, custom }) {
-
-        if (raw && !markup) {
-            markup = markdown2html(raw);
+    static definition(input) {
+        const value = typeof input === "string" ? { front: input } : input;
+        if (!value || typeof value.front !== "string" || !value.front.trim()
+            || value.front.length > 1200
+            || (value.back != null && (typeof value.back !== "string" || value.back.length > 1200))) {
+            return null;
         }
-
-        const text = striptags(markup);
-
-        if (!id) {
-            id = this.makeId(text);
-        }
-
-        const prefix = this.ID_PREFIX;
-
-        if (!id.startsWith(prefix)) {
-            id = `${prefix}${id}`;
-        }
-
         return {
-            raw,
-            text,
-            markup,
-            id,
-            colour: `var(--${colour || "grey"})`,
-            custom: Boolean(custom)
+            front: value.front,
+            back: value.back || "",
+            color: colors.includes(value.color) ? value.color : "ink",
+            favourite: value.favourite === true
         };
-
     }
 
-    /**
-     * @param {Object} data
-     *        Data for the info token.
-     */
-    constructor(data) {
-
-        /**
-         * Interpretted data - see {@link InfoToken.interpret}.
-         * @type {Object}
-         */
-        this.data = this.constructor.interpret(data);
-
+    constructor({ raw, definition, markup, id, custom, colour } = {}) {
+        this.id = id ? `info-token-${id}` : identify({}, "info-token-");
+        this.definition = InfoToken.definition(definition ?? raw);
+        this.markup = markup;
+        this.custom = Boolean(custom);
+        this.colour = colour;
+        this.backVisible = false;
     }
 
-    /**
-     * A helper function for drawing all the elements.
-     */
     draw() {
-
-        this.drawTrigger();
-        this.drawDialog();
-
-    }
-
-    /**
-     * Draws the button and adds it to the correct holder.
-     */
-    drawTrigger() {
-
-        const {
-            text,
-            id,
-            colour,
-            custom
-        } = this.data;
-        const {
-            holders,
-            templates
-        } = this.constructor;
-        const holder = holders[
-            custom
-            ? "custom"
-            : "button"
-        ];
-
+        const { holders, templates } = InfoToken;
+        const holder = this.custom ? holders.custom : holders.button;
         const trigger = templates.button.draw({
-            ".js--info-token--button"(element) {
-
-                element.textContent = text;
-                element.style.setProperty("--bg-colour", colour);
-                element.dataset.dialog = `#${id}`;
-
+            ".js--info-token--button": (element) => {
+                element.dataset.dialog = `#${this.id}`;
             }
         });
-
+        this.trigger = trigger.firstElementChild;
         holder.append(trigger);
-
-        /**
-         * The wrapper list item that holds the button that triggers
-         * {@link InfoToken#dialog}.
-         * @type {Element}
-         */
-        this.trigger = holder.lastElementChild;
-
-    }
-
-    /**
-     * Draws the dialog and adds it to the correct holder.
-     */
-    drawDialog() {
-
-        const {
-            markup,
-            id,
-            colour,
-            custom
-        } = this.data;
-        const {
-            holders,
-            templates
-        } = this.constructor;
-        const holder = holders.dialog;
-
         const dialog = templates.dialog.draw({
-            ".js--info-token--dialog"(element) {
-
-                element.id = id;
-                element.style.setProperty("--colour", colour);
-
-            },
-            ".js--info-token--dialog-text"(element) {
-                element.innerHTML = markup;
-            },
-            ".js--info-token--actions"(element) {
-                element.hidden = !custom;
+            ".js--info-token--dialog": (element) => {
+                element.id = this.id;
+                if (this.colour) {
+                    element.style.setProperty("--colour", `var(--${this.colour})`);
+                }
             }
         });
-
-        holder.append(dialog);
-
-        /**
-         * The dialog element for this info token.
-         * @type {Element}
-         */
-        this.dialog = holder.lastElementChild;
-
+        this.dialog = dialog.firstElementChild;
+        holders.dialog.append(dialog);
+        this.front = this.dialog.querySelector(".info-token__front");
+        this.back = this.dialog.querySelector(".info-token__back");
+        this.flip = this.dialog.querySelector(".info-token__flip");
+        this.card = this.dialog.querySelector(".info-token__card");
+        this.updateDefinition(this.definition);
+        this.flip.addEventListener("click", () => this.flipSide());
+        this.card.addEventListener("click", () => this.flipSide());
+        this.dialog.addEventListener("cancel", (event) => event.preventDefault());
+        this.dialog.addEventListener("close", () => this.setSide(false));
     }
 
-    /**
-     * Exposes a copy of {@link InfoToken#data}.
-     *
-     * @return {Object}
-     *         A copy of the info token's data.
-     */
-    getData() {
-
-        return {
-            ...this.data
-        };
-
+    updateDefinition(definition) {
+        this.definition = definition;
+        if (definition) {
+            appendFormatted(this.front, definition.front);
+            appendFormatted(this.back, definition.back);
+            this.dialog.dataset.color = definition.color;
+        } else {
+            // Built-in and translated token markup comes from the Twig catalogue.
+            this.front.innerHTML = this.markup;
+        }
+        this.trigger.querySelector("button").textContent = this.front.textContent;
+        this.flip.hidden = !definition?.back;
+        this.card.classList.toggle("is-flippable", Boolean(definition?.back));
+        this.setSide(false);
     }
 
-    /**
-     * Exposes the "raw" key from {@link InfoToken#data}.
-     *
-     * @return {String}
-     *         The raw markdown.
-     */
-    getRaw() {
-        return this.data.raw;
+    setSide(back) {
+        this.backVisible = back;
+        this.card.classList.toggle("is-flipped", back);
+        this.front.setAttribute("aria-hidden", String(back));
+        this.back.setAttribute("aria-hidden", String(!back));
+        this.flip.setAttribute("aria-pressed", String(back));
+        this.dialog.querySelector(".info-token__side").textContent = this.definition?.back
+            ? (back ? WORKSPACE.sideBack : WORKSPACE.sideFront)
+            : "";
     }
 
-    /**
-     * Exposes {@link InfoToken#trigger}
-     *
-     * @return {Element}
-     *         Trigger element.
-     */
-    getTrigger() {
-        return this.trigger;
+    flipSide() {
+        if (this.definition?.back) {
+            this.setSide(!this.backVisible);
+        }
     }
 
-    /**
-     * Exposes {@link InfoToken#dialog}
-     *
-     * @return {Element}
-     *         Dialog element.
-     */
-    getDialog() {
-        return this.dialog;
+    getDefinition() {
+        return { ...this.definition };
     }
 
-    /**
-     * Updates the contents of the info token based on the raw input given.
-     *
-     * @param {String} raw
-     *        Markdown that should be updated.
-     */
-    updateRaw(raw) {
-
-        const {
-            data,
-            dialog,
-            trigger
-        } = this;
-
-        const markup = markdown2html(raw);
-        const text = striptags(markup);
-
-        data.raw = raw;
-        data.text = text;
-        lookupOne(".js--info-token--button", trigger).textContent = text;
-        data.markup = markup;
-        lookupOne(".js--info-token--dialog-text", dialog).innerHTML = markup;
-
-    }
-
-    /**
-     * Removes the elements that were added to the DOM for this info token.
-     */
     remove() {
-
         this.dialog.remove();
         this.trigger.remove();
-
     }
-
 }

@@ -193,6 +193,9 @@ export default class NightOrder {
 
         }
 
+        [data.first, data.other].filter(Boolean).forEach(({ element }) => {
+            element.dataset.actionId = id;
+        });
         this.data.push(data);
 
     }

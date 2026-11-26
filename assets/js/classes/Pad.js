@@ -208,6 +208,16 @@ export default class Pad {
 
     }
 
+    setPlayerDetails(character, details) {
+        character.playerDetails = details;
+        const info = this.getInfoByCharacter(character);
+        if (info) {
+            const { token } = info;
+            token.dataset.alignment = details.alignment || "";
+            this.observer.trigger("player-details", { character, details });
+        }
+    }
+
     /**
      * Exposes the ability to move a token to the correct place.
      *
@@ -616,6 +626,11 @@ export default class Pad {
 
         return info;
 
+    }
+
+    setReminderOwner(reminder, owner) {
+        reminder.owner = owner || "";
+        this.observer.trigger("reminder-owner", { reminder, owner: reminder.owner });
     }
 
     /**

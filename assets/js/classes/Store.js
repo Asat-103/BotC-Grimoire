@@ -29,7 +29,13 @@ export default class Store {
         names: [],
         height: "",
         version: "",
-        user: ""
+        user: "",
+        seats: [],
+        boardLayout: "freeform",
+        nightProgress: null,
+        dayTimer: null,
+        nominations: {},
+        customReminders: []
     };
 
     /**
@@ -111,7 +117,12 @@ export default class Store {
      * Writes {@link Store#data} to localStorage.
      */
     write() {
-        window.localStorage.setItem(this.key, JSON.stringify(this.data));
+        try {
+            window.localStorage.setItem(this.key, JSON.stringify(this.data));
+            delete document.body.dataset.storageError;
+        } catch {
+            document.body.dataset.storageError = "true";
+        }
         this.observer.trigger("written", this.get());
     }
 
@@ -123,10 +134,13 @@ export default class Store {
      */
     read() {
 
-        return {
-            ...deepClone(this.constructor.defaults),
-            ...(JSON.parse(window.localStorage.getItem(this.key)) || {})
-        };
+        const defaults = deepClone(this.constructor.defaults);
+        try {
+            const data = JSON.parse(window.localStorage.getItem(this.key));
+            return { ...defaults, ...data };
+        } catch {
+            return defaults;
+        }
 
     }
 
@@ -261,6 +275,22 @@ export default class Store {
         tokens.splice(index, 1);
         this.write();
 
+    }
+
+    setPlayerDetails(character, details) {
+        const entry = this.data.tokens[this.tokens.indexOf(character)];
+        if (entry) {
+            entry.playerDetails = details;
+            this.write();
+        }
+    }
+
+    setReminderOwner(reminder, owner) {
+        const entry = this.data.tokens[this.tokens.indexOf(reminder)];
+        if (entry) {
+            entry.owner = owner;
+            this.write();
+        }
     }
 
     /**
@@ -537,7 +567,7 @@ export default class Store {
             infoTokens[index] = infoToken;
         } else {
             infoTokens.push(infoToken);
-            data.infoTokens.push(infoToken.getRaw());
+            data.infoTokens.push(infoToken.getDefinition());
         }
 
         this.write();
@@ -557,7 +587,7 @@ export default class Store {
 
         if (index > -1) {
 
-            this.data.infoTokens[index] = infoToken.getRaw();
+            this.data.infoTokens[index] = infoToken.getDefinition();
             this.write();
 
         }
@@ -587,6 +617,17 @@ export default class Store {
 
         }
 
+    }
+
+    moveInfoToken(infoToken, offset) {
+        const from = this.infoTokens.indexOf(infoToken);
+        const to = from + offset;
+        if (from < 0 || to < 0 || to >= this.infoTokens.length) {
+            return;
+        }
+        this.infoTokens.splice(to, 0, this.infoTokens.splice(from, 1)[0]);
+        this.data.infoTokens.splice(to, 0, this.data.infoTokens.splice(from, 1)[0]);
+        this.write();
     }
 
     /**

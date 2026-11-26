@@ -8,6 +8,7 @@
     {% import 'macros/forms.html.twig' as forms %}
     {% block body %}
     <form id="player-select">
+        <label class="folio-search">{{ 'redesign.search_roles'|trans }} <input class="input" id="character-search" type="search" data-no-store></label>
 
         <template id="breakdown-player">
             <tr class="breakdown__row breakdown__row--[id] js--breakdown--row">
@@ -101,7 +102,9 @@
 
         <ul class="button-list">
             <li><button type="submit" class="button button--full-height">{{ 'setup.character_select.draw_characters'|trans }}</button></li>
-            <li><button type="submit" class="button button--full-height" id="player-select-all">{{ 'setup.character_select.add_all'|trans }}</button></li>
+            <li><button type="submit" class="button button--full-height" id="player-select-sequential">{{ 'redesign.sequential'|trans }}</button></li>
+            <li><button type="submit" class="button button--full-height" id="player-select-manual">{{ 'redesign.manual'|trans }}</button></li>
+            <li><button type="submit" class="button button--full-height" id="player-select-all">{{ 'redesign.shuffle_and_deal'|trans }}</button></li>
         </ul>
 
     </form>

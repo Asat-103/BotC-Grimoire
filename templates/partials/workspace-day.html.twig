@@ -1,0 +1,25 @@
+<section class="folio-section">
+    <div class="folio-section__heading"><h2>{{ 'redesign.day_timer'|trans }}</h2></div>
+    <div class="folio-panel day-timer">
+        <label>{{ 'redesign.day'|trans }} <input class="input" type="number" min="1" max="99" id="day-number" value="1" data-no-store></label>
+        <label>{{ 'redesign.timer_minutes'|trans }} <input class="input" type="number" min="1" max="180" id="timer-minutes" value="5" data-no-store></label>
+        <output class="day-timer__clock" id="timer-clock" aria-live="off">05:00</output>
+        <div class="folio-actions">
+            <button class="button" type="button" id="timer-start">{{ 'redesign.timer_start'|trans }}</button>
+            <button class="button" type="button" id="timer-pause">{{ 'redesign.timer_pause'|trans }}</button>
+            <button class="button" type="button" id="timer-reset">{{ 'redesign.timer_reset'|trans }}</button>
+        </div>
+    </div>
+    <div class="folio-panel">
+        <h2>{{ 'redesign.nominations'|trans }}</h2>
+        <form class="folio-form" id="nomination-form">
+            <label>{{ 'redesign.nominee'|trans }} <input class="input" name="nominee" list="nomination-players" maxlength="120" required data-no-store></label>
+            <datalist id="nomination-players"></datalist>
+            <label>{{ 'redesign.votes'|trans }} <input class="input" name="votes" type="number" min="0" max="99" required data-no-store></label>
+            <label><input type="checkbox" name="executed" data-no-store> {{ 'redesign.executed'|trans }}</label>
+            <button type="submit" class="button">{{ 'redesign.record_nomination'|trans }}</button>
+        </form>
+        <p id="nomination-highest" class="mt-4" aria-live="polite"></p>
+        <ol id="nomination-history" class="folio-records" data-highest="{{ 'redesign.highest_tally'|trans }}" data-executed="{{ 'redesign.executed'|trans }}"></ol>
+    </div>
+</section>

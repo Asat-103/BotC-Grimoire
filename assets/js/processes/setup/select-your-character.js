@@ -1,3 +1,4 @@
+import Store from "../../classes/Store.js";
 import Observer from "../../classes/Observer.js";
 import Dialog from "../../classes/Dialog.js";
 import TokenStore from "../../classes/TokenStore.js";
@@ -15,10 +16,11 @@ import {
 const gameObserver = Observer.create("game");
 const characterDecisionDialog = Dialog.create(lookupOne("#character-decision"));
 const playerName = lookupOne("#player-name");
+const concealedRoles = new WeakMap();
 
 gameObserver.on("character-draw", ({ detail }) => {
 
-    if (detail.isShowAll) {
+    if (detail.mode && detail.mode !== "bag" || detail.isShowAll) {
         return;
     }
 
@@ -31,7 +33,7 @@ gameObserver.on("character-draw", ({ detail }) => {
         shuffle(detail.characters)
             .map((character, i) => template.draw({
                 "[data-id]"(element) {
-                    element.dataset.id = character.getId();
+                    concealedRoles.set(element, character);
                 },
                 ".js--character-choice--number"(element) {
                     element.textContent = i + 1;
@@ -53,11 +55,13 @@ gameObserver.on("character-draw", ({ detail }) => {
 
     TokenStore.ready((tokenStore) => {
 
-        detail.characters.forEach((character) => {
+        const seats = Store.create("pocket-grimoire").data.seats || [];
+        detail.characters.forEach((character, index) => {
 
             gameObserver.trigger("character-drawn", {
                 character: character.clone(),
-                isAutoAdd: true
+                isAutoAdd: true,
+                name: seats[index]
             });
 
         });
@@ -74,17 +78,10 @@ lookupOneCached("#character-choice").addEventListener("click", ({ target }) => {
         return;
     }
 
-    TokenStore.ready((tokenStore) => {
-
-        // Add a clone of the character so that duplicated characters are still
-        // considered unique.
-
-        gameObserver.trigger("character-drawn", {
-            element,
-            character: tokenStore.getCharacter(element.dataset.id).clone()
-        });
-
-    });
+    const role = concealedRoles.get(element);
+    if (role) {
+        gameObserver.trigger("character-drawn", { element, character: role.clone() });
+    }
 
 });
 
@@ -132,10 +129,15 @@ gameObserver.on("character-drawn", ({ detail }) => {
 });
 
 characterDecisionDialog.on(Dialog.SHOW, () => {
-    playerName.value = playerName.defaultValue;
+    const seat = lookupOneCached(".js--pad").pad.characters.length - 1;
+    playerName.value = Store.create("pocket-grimoire").data.seats?.[seat] || playerName.defaultValue;
 });
 
+characterDecisionDialog.getElement().addEventListener("cancel", (event) => event.preventDefault());
+
 characterDecisionDialog.on(Dialog.HIDE, () => {
+    empty(lookupOneCached("#character-decision-wrapper"));
+    lookupOneCached("#character-decision-ability").textContent = "";
 
     const {
         pad

@@ -39,7 +39,13 @@ class MainController extends AbstractController
     #[Route("/{_locale}/", name: "index")]
     public function indexAction(
     ): Response {
-        return $this->render('pages/index.html.twig');
+        $response = $this->render('pages/index.html.twig');
+        // The index is an application shell. Game state stays on the device.
+        $response->setPublic();
+        $response->setMaxAge(0);
+        $response->setCache(["must_revalidate" => true]);
+
+        return $response;
     }
 
     #[Route("/{_locale}/sheet", name: "sheet")]

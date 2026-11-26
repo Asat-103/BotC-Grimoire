@@ -3,22 +3,96 @@
 {% block title %}{{ 'index.title'|trans }}{% endblock %}
 {% set meta_description = 'index.description'|trans %}
 
-{% block styles %}{{ encore_entry_link_tags('css/main') }}{% endblock %}
+{% block styles %}
+<script>
+try { document.documentElement.dataset.theme = localStorage.getItem('pg-theme') || 'dark'; } catch (error) {}
+</script>
+{{ encore_entry_link_tags('css/main') }}
+{% endblock %}
 
 {% set body_class = 'body-grimoire' %}
 
 {% block body %}
 
-<h1 class="title">{{ 'title'|trans }}</h1>
-
-{% include 'partials/setup.html.twig' %}
-{% include 'partials/grimoire.html.twig' %}
-{% include 'partials/jinxes.html.twig' %}
-{% include 'partials/night-order.html.twig' %}
-{% include 'partials/info-tokens.html.twig' %}
-{% include 'partials/notes.html.twig' %}
-{% include 'partials/acknowledgements.html.twig' %}
-{% include 'partials/community.html.twig' %}
+<div class="folio" id="folio">
+    <aside class="folio-sidebar">
+        <button class="folio-brand" type="button" data-view="home">
+            <span class="folio-brand__seal" aria-hidden="true">✦</span><span>{{ 'title'|trans }}</span>
+        </button>
+        <nav class="folio-navigation" aria-label="{{ 'redesign.navigation'|trans }}">
+            {% for view, item in {
+                grimoire: ['◉', 'grimoire.title'],
+                night: ['☾', 'night_order.title'],
+                players: ['♙', 'groups.players'],
+                script: ['▤', 'redesign.script'],
+                tools: ['◇', 'redesign.tools']
+            } %}
+                <button type="button" data-view="{{ view }}" class="folio-nav-button">
+                    <span aria-hidden="true">{{ item[0] }}</span><span>{{ item[1]|trans }}</span>
+                </button>
+            {% endfor %}
+        </nav>
+        <div class="folio-sidebar__footer">
+            <button type="button" class="folio-nav-button" data-view="settings"><span aria-hidden="true">⚙</span>{{ 'redesign.settings'|trans }}</button>
+            <span class="folio-attribution">{{ 'redesign.community'|trans }}</span>
+        </div>
+    </aside>
+    <div class="folio-workspace">
+        <header class="folio-bar">
+            <div>
+                <span class="folio-kicker">{{ 'redesign.storyteller'|trans }}</span>
+                <strong id="current-edition">{{ 'redesign.no_script'|trans }}</strong>
+                <small id="current-game-meta"></small>
+            </div>
+            <div class="folio-actions">
+                <button type="button" class="button" data-view="home">{{ 'redesign.home'|trans }}</button>
+                <button type="button" class="button" id="privacy-button">{{ 'redesign.hide'|trans }}</button>
+                <button type="button" class="button folio-mobile-settings" data-view="settings" aria-label="{{ 'redesign.settings'|trans }}">⚙</button>
+            </div>
+        </header>
+        <p id="storage-error" role="status">{{ 'redesign.save_error'|trans }}</p>
+        <div class="folio-content">
+            <div data-panel="home">{% include 'partials/workspace-home.html.twig' %}</div>
+            <div data-panel="grimoire" hidden>{% include 'partials/grimoire.html.twig' %}{% include 'partials/jinxes.html.twig' %}</div>
+            <div data-panel="night" hidden>{% include 'partials/night-order.html.twig' %}</div>
+            <div data-panel="players" hidden>{% include 'partials/workspace-players.html.twig' %}</div>
+            <div data-panel="script" hidden>
+                <section class="folio-section">
+                    <h1>{{ 'redesign.script'|trans }}</h1>
+                    <div class="folio-actions">
+                        <button class="button" type="button" data-activate="select-edition">{{ 'setup.buttons.select_edition'|trans }}</button>
+                        <button class="button" type="button" data-activate="qr-code-button">{{ 'setup.buttons.qr_code_button'|trans }}</button>
+                    </div>
+                    <label class="folio-search">{{ 'redesign.search_roles'|trans }} <input class="input" type="search" id="script-search" data-no-store></label>
+                    <div id="script-reference" {% for team in ['townsfolk','outsider','minion','demon','traveller','fabled','loric'] %}data-{{ team }}="{{ ('groups.' ~ team)|trans }}"{% endfor %}></div>
+                </section>
+            </div>
+            <div data-panel="tools" hidden>{% include 'partials/info-tokens.html.twig' %}{% include 'partials/notes.html.twig' %}{% include 'partials/workspace-day.html.twig' %}</div>
+            <div data-panel="settings" hidden>
+                <section class="folio-section"><h1>{{ 'redesign.settings'|trans }}</h1>
+                    <label class="folio-search">{{ 'redesign.theme'|trans }}
+                        <select class="input" id="theme-select" data-no-store>
+                            {% for theme in ['dark', 'dim', 'light', 'system'] %}
+                                <option value="{{ theme }}">{{ ('redesign.themes.' ~ theme)|trans }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </section>
+                {% include 'partials/setup.html.twig' %}
+                {% include 'partials/acknowledgements.html.twig' %}
+                {% include 'partials/community.html.twig' %}
+            </div>
+        </div>
+    </div>
+</div>
+<dialog class="privacy-surface" id="privacy-curtain" aria-labelledby="privacy-heading">
+    <div class="privacy-surface__content">
+        <span class="privacy-surface__seal" aria-hidden="true">✦</span>
+        <h2 id="privacy-heading">{{ 'redesign.hidden'|trans }}</h2>
+        <button type="button" class="button" id="privacy-return">{{ 'redesign.handback'|trans }}</button>
+    </div>
+</dialog>
+{% include 'partials/workspace-distribution.html.twig' %}
 
 {% endblock %}
 
@@ -46,6 +120,21 @@ var I18N = {
     demon: "{{ 'groups.demon'|trans|e('js') }}",
 };
 
+var WORKSPACE = {{ {
+    newConfirm: 'redesign.new_confirm'|trans, restoreConfirm: 'redesign.restore_confirm'|trans,
+    removeConfirm: 'redesign.remove_confirm'|trans, noSessions: 'redesign.no_sessions'|trans,
+    restore: 'redesign.restore'|trans, remove: 'redesign.remove'|trans,
+    seat: 'redesign.seat'|trans, night: 'redesign.night'|trans, day: 'redesign.day'|trans,
+    earlier: 'redesign.earlier'|trans, later: 'redesign.later'|trans,
+    dead: 'redesign.dead'|trans, spentVote: 'redesign.spent_vote'|trans, noSeats: 'redesign.no_seats'|trans, noRoles: 'redesign.no_roles'|trans,
+    sideFront: 'redesign.front'|trans, sideBack: 'redesign.back'|trans,
+    edit: 'info_tokens.edit_custom'|trans, duplicate: 'redesign.duplicate'|trans,
+    favourite: 'redesign.favourite'|trans, noScripts: 'redesign.no_scripts'|trans, badImport: 'redesign.bad_import'|trans,
+    complete: 'redesign.complete'|trans, skipped: 'redesign.skipped'|trans,
+    emptyNight: 'redesign.empty_night'|trans, countMismatch: 'redesign.count_mismatch'|trans,
+    saveError: 'redesign.save_error'|trans, alignment: 'redesign.alignment'|trans,
+    unassigned: 'redesign.unassigned'|trans, traveller: 'groups.traveller'|trans
+}|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
 var ENVIRONMENT = "{{ app.environment|e('js') }}";
 </script>
 <script src="{{ asset('build/data/' ~ app.request.locale ~ '.js') }}"></script>

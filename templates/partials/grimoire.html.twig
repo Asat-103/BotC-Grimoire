@@ -4,8 +4,23 @@
 } %}
     {% import 'macros/forms.html.twig' as forms %}
     {% block body %}
+    <div class="folio-board-tools">
+        <label>{{ 'redesign.board_layout'|trans }}
+            <select id="board-layout" class="input" data-no-store>
+                {% for layout in ['freeform','circle','grid','list'] %}
+                    <option value="{{ layout }}">{{ ('redesign.' ~ layout)|trans }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <button type="button" class="button" id="fit-board">{{ 'redesign.fit'|trans }}</button>
+        <button type="button" class="button" data-activate="select-characters">{{ 'setup.buttons.select_characters'|trans }}</button>
+    </div>
     <div class="pad-wrapper">
         <div class="pad pad--growable js--pad"></div>
+        <div class="folio-board-empty" id="board-empty">
+            <p>{{ 'redesign.empty_board'|trans }}</p>
+            <button class="button" type="button" data-view="home">{{ 'redesign.choose_script'|trans }}</button>
+        </div>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" class="pad-wrapper__icon"><!--! Font Awesome Pro 6.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="currentColor" d="M246.6 361.4C252.9 367.6 256 375.8 256 384s-3.125 16.38-9.375 22.62l-96 96c-12.5 12.5-32.75 12.5-45.25 0l-96-96c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L96 402.8v-293.5L54.63 150.6c-12.5 12.5-32.75 12.5-45.25 0s-12.5-32.75 0-45.25l96-96c12.5-12.5 32.75-12.5 45.25 0l96 96C252.9 111.6 256 119.8 256 128s-3.125 16.38-9.375 22.62c-12.5 12.5-32.75 12.5-45.25 0L160 109.3v293.5l41.38-41.38C213.9 348.9 234.1 348.9 246.6 361.4z"/></svg>
     </div>
 
@@ -165,7 +180,22 @@
         <button type="button" class="button mt-2" id="character-name">{{ 'grimoire.character_show.player_name'|trans }}</button>
     </p>
 
+    <label class="folio-inline-setting"><input type="checkbox" id="replacement-reminders" data-no-store> {{ 'redesign.remove_on_replace'|trans }}</label>
+    <form id="seat-details" class="folio-form">
+        <label>{{ 'redesign.alignment'|trans }}
+            <select class="input" name="alignment" id="actual-alignment" data-no-store>
+                <option value="">{{ 'redesign.default_alignment'|trans }}</option>
+                <option value="good">{{ 'messages.good_team'|trans }}</option>
+                <option value="evil">{{ 'messages.evil_team'|trans }}</option>
+            </select>
+        </label>
+        <label>{{ 'redesign.player_note'|trans }}<textarea class="input" name="note" id="seat-note" rows="2" maxlength="3000" data-no-store></textarea></label>
+        <button class="button" type="submit">{{ 'redesign.save'|trans }}</button>
+    </form>
+    <details class="mt-4"><summary>{{ 'redesign.player_history'|trans }}</summary><ol id="player-history"></ol></details>
     <p class="mt-4"><small>{{ 'grimoire.character_show.recent_reminders'|trans }}</small></p>
+    <p class="mt-4"><small>{{ 'redesign.assigned_reminders'|trans }}</small></p>
+    <ul id="assigned-reminders" class="button-list"></ul>
     <ul id="character-show-reminders" class="button-list button-list--reminder is-show-all"></ul>
     <p class="mt-4"><button type="button" class="button button--warning" id="character-remove">{{ 'grimoire.character_show.remove'|trans }}</button></p>
     {% endblock %}
@@ -178,6 +208,7 @@
     {% block title %}<span id="reminder-show-name">{{ 'grimoire.reminder_show.title'|trans }}</span>{% endblock %}
     {% block body %}
     <div id="reminder-show-token" class="character-show__token"></div>
+    <label class="folio-search">{{ 'redesign.reminder_owner'|trans }} <select id="reminder-owner" class="input" data-no-store></select></label>
     <p id="reminder-show-orphan" class="mt-4" hidden><strong class="character-show__orphan">{{ 'grimoire.character_show.orphan'|trans }}</strong></p>
     <p class="mt-4"><button type="button" class="button button--warning" id="reminder-remove">{{ 'grimoire.reminder_show.remove'|trans }}</button></p>
     {% endblock %}

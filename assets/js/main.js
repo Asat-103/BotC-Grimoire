@@ -33,3 +33,14 @@ import "./processes/acknowledgements.js";
 import "./processes/store.js";
 
 import "./details.js";
+
+import { protectPresentation } from "./workspace/navigation.js";
+import "./workspace/game.js";
+import "./workspace/distribution.js";
+import "./workspace/night-day.js";
+
+document.body.addEventListener("dialog-show", ({ target }) => {
+    protectPresentation(target);
+});
+
+import "./workspace/offline.js";

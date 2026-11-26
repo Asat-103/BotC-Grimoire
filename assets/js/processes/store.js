@@ -123,6 +123,14 @@ tokenObserver.on("ghost-vote-toggle", ({ detail }) => {
 
 });
 
+tokenObserver.on("reminder-owner", ({ detail }) => {
+    store.setReminderOwner(detail.reminder, detail.owner);
+});
+
+tokenObserver.on("player-details", ({ detail }) => {
+    store.setPlayerDetails(detail.character, detail.details);
+});
+
 tokenObserver.on("bluff", ({ detail }) => {
     store.setBluffs(detail.data);
 });
@@ -162,7 +170,7 @@ body.addEventListener("input", ({ target }) => {
 
     const input = target.closest("input,select,textarea");
 
-    if (!input.hasAttribute("data-no-store")) {
+    if (input && !input.hasAttribute("data-no-store")) {
         store.saveInput(input);
     }
 
@@ -213,7 +221,9 @@ TokenStore.ready((tokenStore) => {
         isDead,
         isUpsideDown,
         playerName,
-        ghostVote
+        ghostVote,
+        playerDetails,
+        owner
     }) => {
 
         if (!tokenStore.characterExists(id)) {
@@ -239,7 +249,12 @@ TokenStore.ready((tokenStore) => {
             pad.rotate(character, Boolean(isUpsideDown));
             pad.setPlayerName(character, playerName);
             pad.setGhostVote(character, Boolean(ghostVote));
+            if (playerDetails) {
+                pad.setPlayerDetails(character, playerDetails);
+            }
 
+        } else if (owner) {
+            pad.setReminderOwner(info.reminder, owner);
         }
 
         if (zIndex > finalZIndex) {
@@ -337,10 +352,13 @@ TokenStore.ready((tokenStore) => {
 
     // Re-add any custom info tokens.
 
-    storeData.infoTokens.forEach((raw, i) => {
+    storeData.infoTokens.forEach((definition, i) => {
+        if (!InfoToken.definition(definition)) {
+            return;
+        }
 
         const token = new InfoToken({
-            raw,
+            definition,
             custom: true
         });
         token.draw();

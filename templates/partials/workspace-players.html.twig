@@ -1,0 +1,25 @@
+<section class="folio-section">
+    <h1>{{ 'groups.players'|trans }}</h1>
+    <div class="folio-panel">
+        <label class="folio-inline-setting">{{ 'setup.character_select.number_players'|trans }}
+            <input class="input" id="seating-count" type="number" min="5" max="20" value="5" data-no-store>
+        </label>
+        <label for="seating-names">{{ 'redesign.seat_names'|trans }}</label>
+        <textarea class="input" id="seating-names" rows="4" data-no-store></textarea>
+        <div class="folio-actions">
+            <button class="button folio-primary" type="button" id="apply-seats">{{ 'redesign.save_seats'|trans }}</button>
+            <button class="button" type="button" id="number-seats">{{ 'redesign.number_seats'|trans }}</button>
+        </div>
+        <ol id="seating-list" class="folio-records"></ol>
+        <div class="folio-actions">
+            <button class="button" type="button" id="reverse-seats">{{ 'redesign.reverse_seats'|trans }}</button>
+            <button class="button" type="button" id="reuse-seats">{{ 'redesign.reuse_seats'|trans }}</button>
+            <button class="button" type="button" data-activate="select-characters">{{ 'setup.buttons.select_characters'|trans }}</button>
+        </div>
+    </div>
+    <div class="folio-panel">
+        <h2>{{ 'redesign.assigned'|trans }}</h2>
+        <div id="assigned-players" class="folio-records"></div>
+        <button class="button" type="button" data-activate="add-traveller">{{ 'grimoire.grimoire.add_traveller'|trans }}</button>
+    </div>
+</section>
